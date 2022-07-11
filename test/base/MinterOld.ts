@@ -70,7 +70,7 @@ describe("minter old tests", function () {
     await controller.setVoter(voter.address)
 
     const Minter = await ethers.getContractFactory("ConeMinter");
-    minter = await Minter.deploy(ve.address, controller.address, 2);
+    minter = await Minter.deploy(ve.address, controller.address);
     await minter.deployed();
     await ve_dist.setDepositor(minter.address);
     await ve_underlying.setMinter(minter.address);
@@ -92,7 +92,7 @@ describe("minter old tests", function () {
   });
 
   it("initialize veNFT", async function () {
-    await minter.initialize([owner.address],[ethers.BigNumber.from("1000000000000000000000000")], ethers.BigNumber.from("1000000000000000000000000"))
+    await minter.initialize([owner.address],[ethers.BigNumber.from("1000000000000000000000000")], ethers.BigNumber.from("1000000000000000000000000"), 2)
     expect(await ve.ownerOf(2)).to.equal(owner.address);
     expect(await ve.ownerOf(3)).to.equal("0x0000000000000000000000000000000000000000");
     await network.provider.send("evm_mine")

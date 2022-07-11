@@ -41,18 +41,16 @@ async function main() {
     + 'veDist: ' + core.veDist.address + '\n'
     + 'voter: ' + core.voter.address + '\n'
     + 'minter: ' + core.minter.address + '\n'
-    + 'treasury: ' + core.treasury.address + '\n'
 
   console.log(data);
   writeFileSync('tmp/core.txt', data);
 
   await Misc.wait(5);
 
-  await Verify.verify(core.treasury.address);
   await Verify.verify(core.token.address);
   await Verify.verify(core.gaugesFactory.address);
   await Verify.verify(core.bribesFactory.address);
-  await Verify.verifyWithArgs(core.factory.address, [core.treasury.address]);
+  await Verify.verify(core.factory.address);
   await Verify.verifyWithArgs(core.router.address, [core.factory.address, BscTestnetAddresses.WMATIC_TOKEN]);
   await Verify.verifyWithArgs(core.ve.address, [core.token.address]);
   await Verify.verifyWithArgs(core.veDist.address, [core.ve.address]);

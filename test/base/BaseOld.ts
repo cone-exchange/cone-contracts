@@ -368,7 +368,7 @@ describe("base old tests", function () {
     await ve_dist.deployed();
 
     const Minter = await ethers.getContractFactory("ConeMinter");
-    minter = await Minter.deploy(ve.address, controller.address, 2);
+    minter = await Minter.deploy(ve.address, controller.address);
     await minter.deployed();
     await ve_dist.setDepositor(minter.address);
     await controller.setVoter(voter.address);
@@ -650,7 +650,7 @@ describe("base old tests", function () {
   it("minter mint", async function () {
     console.log(await ve_dist.lastTokenTime());
     console.log(await ve_dist.timestamp());
-    await minter.initialize([owner.address], [ethers.BigNumber.from("1000000000000000000")], ethers.BigNumber.from("1000000000000000000"));
+    await minter.initialize([owner.address], [ethers.BigNumber.from("1000000000000000000")], ethers.BigNumber.from("1000000000000000000"), 2);
     await minter.updatePeriod();
     await voter.updateGauge(gauge.address);
     console.log(await ve_underlying.balanceOf(ve_dist.address));

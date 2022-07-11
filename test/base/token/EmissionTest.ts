@@ -151,7 +151,7 @@ describe("emission tests", function () {
 
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
     // not exact amount coz veCONE balance fluctuation during time
-    TestHelper.closer(await core.token.balanceOf(core.veDist.address), parseUnits('188000'), parseUnits('3000'));
+    TestHelper.closer(await core.token.balanceOf(core.veDist.address), parseUnits('950000'), parseUnits('10000'));
     TestHelper.closer(await core.token.balanceOf(core.voter.address), parseUnits('2000000'), parseUnits('0'));
   });
 
@@ -167,7 +167,7 @@ describe("emission tests", function () {
     // not exact amount coz veCONE balance fluctuation during time
     const veDistBal = await core.token.balanceOf(core.veDist.address);
     const voterBal = await core.token.balanceOf(core.voter.address);
-    TestHelper.closer(veDistBal, parseUnits('196000'), parseUnits('3000'));
+    TestHelper.closer(veDistBal, parseUnits('990000'), parseUnits('10000'));
     TestHelper.closer(voterBal, parseUnits('2000000'), parseUnits('0'));
 
     await TimeUtils.advanceBlocksOnTs(WEEK);
@@ -176,8 +176,8 @@ describe("emission tests", function () {
 
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
     // not exact amount coz veCONE balance fluctuation during time
-    TestHelper.closer((await core.token.balanceOf(core.veDist.address)).sub(veDistBal), parseUnits('150'), parseUnits('50'));
-    TestHelper.closer((await core.token.balanceOf(core.voter.address)).sub(voterBal), parseUnits('18000000'), parseUnits('1000000'));
+    TestHelper.closer((await core.token.balanceOf(core.veDist.address)).sub(veDistBal), parseUnits('350'), parseUnits('50'));
+    TestHelper.closer((await core.token.balanceOf(core.voter.address)).sub(voterBal), parseUnits('15000000'), parseUnits('1000000'));
   });
 
   it("update period and distribute reward to voter and veDist", async function () {
@@ -192,7 +192,7 @@ describe("emission tests", function () {
     // minter without enough token should distribute everything to veDist and voter
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
     // not exact amount coz veCONE balance fluctuation during time
-    TestHelper.closer(await core.token.balanceOf(core.veDist.address), parseUnits('196000'), parseUnits('10000'));
+    TestHelper.closer(await core.token.balanceOf(core.veDist.address), parseUnits('990000'), parseUnits('10000'));
     TestHelper.closer(await core.token.balanceOf(core.voter.address), parseUnits('2000000'), parseUnits('10000'));
 
     // ------------ CHECK CLAIM VE ----------
@@ -246,7 +246,7 @@ async function emissionLoop(
   initial: BigNumber,
   lockPercent = 0,
 ) {
-  const file = 'tmp/emission.txt';
+  const file = `tmp/emission_${lockPercent}.txt`;
   writeFileSync(file, 'id;token supply;ve supply;circulation_supply;gauges rewards;ve rewards;locked\n');
 
   // ------------- setup a fresh core --------------

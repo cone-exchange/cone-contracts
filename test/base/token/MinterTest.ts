@@ -92,7 +92,7 @@ describe("minter tests", function () {
   });
 
   it("double init reject", async function () {
-    await expect(core.minter.initialize([], [], 0)).revertedWith("Not initializer")
+    await expect(core.minter.initialize([], [], 0, 1)).revertedWith("Not initializer")
   });
 
   it("wrong total amount test", async function () {
@@ -106,9 +106,9 @@ describe("minter tests", function () {
     const voter = await Deploy.deployConeVoter(owner, ve.address, baseFactory.address, gaugesFactory.address, bribesFactory.address);
     await controller.setVeDist(veDist.address)
     await controller.setVoter(voter.address)
-    const minter = await Deploy.deployConeMinter(owner, ve.address, controller.address, 1);
+    const minter = await Deploy.deployConeMinter(owner, ve.address, controller.address);
     console.log((await minter.activePeriod()).toString());
-    await expect(minter.initialize([owner.address], [1], 2)).revertedWith('Wrong totalAmount')
+    await expect(minter.initialize([owner.address], [1], 2, 1)).revertedWith('Wrong totalAmount')
   });
 
 

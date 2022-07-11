@@ -30,8 +30,8 @@ contract ConeMinter is IMinter {
   uint internal constant _TAIL_EMISSION = 1;
   uint internal constant _TAIL_EMISSION_DENOMINATOR = 100;
 
-  /// @dev Decrease weekly rewards for ve holders. 10% of the full amount.
-  uint internal constant _GROWTH_DIVIDER = 10;
+  /// @dev Decrease weekly rewards for ve holders. 50% of the full amount.
+  uint internal constant _GROWTH_DIVIDER = 2;
 
   /// @dev Decrease initialStubCirculationSupply by 1% per week.
   ///      Decreasing only if circulation supply lower that the stub circulation
@@ -69,21 +69,20 @@ contract ConeMinter is IMinter {
 
   constructor(
     address ve_, // the ve(3,3) system that will be locked into
-    address controller_, // controller with veDist and voter addresses
-    uint warmingUpPeriod // 2 by default
+    address controller_ // controller with veDist and voter addresses
   ) {
     initializer = msg.sender;
     token = IUnderlying(IVe(ve_).token());
     ve = IVe(ve_);
     controller = controller_;
-    activePeriod = (block.timestamp + (warmingUpPeriod * _WEEK)) / _WEEK * _WEEK;
   }
 
   /// @dev Mint initial supply to holders and lock it to ve token.
   function initialize(
     address[] memory claimants,
     uint[] memory amounts,
-    uint totalAmount
+    uint totalAmount,
+    uint warmingUpPeriod // use 0 period only for testing purposes! ve holders should have time for voting
   ) external {
     require(initializer == msg.sender, "Not initializer");
     token.mint(address(this), totalAmount);
@@ -96,7 +95,7 @@ contract ConeMinter is IMinter {
     }
     require(sum == totalAmount, "Wrong totalAmount");
     initializer = address(0);
-    activePeriod = (block.timestamp + _WEEK) / _WEEK * _WEEK;
+    activePeriod = block.timestamp / _WEEK * _WEEK + (warmingUpPeriod * _WEEK);
   }
 
   function _veDist() internal view returns (IVeDist) {
@@ -165,12 +164,10 @@ contract ConeMinter is IMinter {
   }
 
   /// @dev Update period can only be called once per cycle (1 week)
-  function updatePeriod() external override returns (uint) {
-    uint _period = activePeriod;
+  function updatePeriod() external override {
     // only trigger if new week
-    if (block.timestamp >= _period + _WEEK && initializer == address(0)) {
-      _period = block.timestamp / _WEEK * _WEEK;
-      activePeriod = _period;
+    if (block.timestamp >= activePeriod && initializer == address(0)) {
+      activePeriod = block.timestamp / _WEEK * _WEEK + _WEEK;
       uint _weekly = _weeklyEmission();
       // slightly decrease weekly emission
       baseWeeklyEmission = baseWeeklyEmission
@@ -208,7 +205,6 @@ contract ConeMinter is IMinter {
 
       emit Mint(msg.sender, _weekly, _growth, _circulatingSupply(), _circulatingEmission());
     }
-    return _period;
   }
 
 }

@@ -127,14 +127,12 @@ export class Deploy {
     signer: SignerWithAddress,
     ve: string,
     controller: string,
-    warmingUpPeriod: number
   ) {
     return (await Deploy.deployContract(
       signer,
       'ConeMinter',
       ve,
-      controller,
-      warmingUpPeriod,
+      controller
     )) as ConeMinter;
   }
 
@@ -213,7 +211,7 @@ export class Deploy {
     const veDist = await Deploy.deployVeDist(signer, ve.address);
     const voter = await Deploy.deployConeVoter(signer, ve.address, baseFactory, gaugesFactory.address, bribesFactory.address);
 
-    const minter = await Deploy.deployConeMinter(signer, ve.address, controller.address, warmingUpPeriod);
+    const minter = await Deploy.deployConeMinter(signer, ve.address, controller.address);
 
     await Misc.runAndWait(() => token.setMinter(minter.address));
     await Misc.runAndWait(() => veDist.setDepositor(minter.address));
@@ -224,7 +222,8 @@ export class Deploy {
     await Misc.runAndWait(() => minter.initialize(
       minterClaimants,
       minterClaimantsAmounts,
-      minterSum
+      minterSum,
+      warmingUpPeriod
     ));
 
     return [
