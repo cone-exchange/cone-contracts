@@ -38,6 +38,7 @@ const argv = require('yargs/yargs')()
     },
     bscForkBlock: {
       type: "number",
+      default: 0
     },
   }).argv;
 
@@ -85,7 +86,11 @@ export default {
     },
   },
   etherscan: {
-    apiKey: argv.networkScanKey
+    apiKey: {
+      bsc: argv.networkScanKey,
+      bscTestnet: argv.networkScanKey
+    },
+    customChains: []
   },
   solidity: {
     compilers: [

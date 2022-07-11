@@ -177,6 +177,7 @@ export class Deploy {
       veDist as VeDist,
       voter as ConeVoter,
       minter as ConeMinter,
+      controller as Controller,
     );
   }
 

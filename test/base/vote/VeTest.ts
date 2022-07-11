@@ -53,8 +53,8 @@ describe("ve tests", function () {
 
     core = await Deploy.deployCore(
       owner,
-      BscTestnetAddresses.WMATIC_TOKEN,
-      [BscTestnetAddresses.WMATIC_TOKEN, ust.address, mim.address, dai.address],
+      BscTestnetAddresses.WBNB_TOKEN,
+      [BscTestnetAddresses.WBNB_TOKEN, ust.address, mim.address, dai.address],
       [owner.address, owner2.address],
       [parseUnits('100'), parseUnits('100')],
       parseUnits('200')

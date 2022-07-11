@@ -9,15 +9,30 @@ import {parseUnits} from 'ethers/lib/utils';
 
 
 const voterTokens = [
-  "",
+  BscTestnetAddresses.WBNB_TOKEN,
+  BscTestnetAddresses.USDC_TOKEN,
+  BscTestnetAddresses.MIM_TOKEN,
+  BscTestnetAddresses.DAI_TOKEN,
+  BscTestnetAddresses.USDT_TOKEN,
+  BscTestnetAddresses.MAI_TOKEN,
 ];
 
 const claimants = [
-  "",
+  "0xbbbbb8C4364eC2ce52c59D2Ed3E56F307E529a94",
+  "0xbbbbb8C4364eC2ce52c59D2Ed3E56F307E529a94",
+  "0xbbbbb8C4364eC2ce52c59D2Ed3E56F307E529a94",
+  "0xbbbbb8C4364eC2ce52c59D2Ed3E56F307E529a94",
+  "0xbbbbb8C4364eC2ce52c59D2Ed3E56F307E529a94",
+  "0xbbbbb8C4364eC2ce52c59D2Ed3E56F307E529a94",
 ];
 
 const claimantsAmounts = [
-  parseUnits('1'),
+  parseUnits('100'),
+  parseUnits('200'),
+  parseUnits('300'),
+  parseUnits('400'),
+  parseUnits('500'),
+  parseUnits('600'),
 ];
 
 async function main() {
@@ -29,7 +44,7 @@ async function main() {
     minterMax = minterMax.add(c);
   }
 
-  const core = await Deploy.deployCore(signer, BscTestnetAddresses.WMATIC_TOKEN, voterTokens, claimants, claimantsAmounts, minterMax)
+  const core = await Deploy.deployCore(signer, BscTestnetAddresses.WBNB_TOKEN, voterTokens, claimants, claimantsAmounts, minterMax, 0)
 
   const data = ''
     + 'token: ' + core.token.address + '\n'
@@ -51,11 +66,11 @@ async function main() {
   await Verify.verify(core.gaugesFactory.address);
   await Verify.verify(core.bribesFactory.address);
   await Verify.verify(core.factory.address);
-  await Verify.verifyWithArgs(core.router.address, [core.factory.address, BscTestnetAddresses.WMATIC_TOKEN]);
+  await Verify.verifyWithArgs(core.router.address, [core.factory.address, BscTestnetAddresses.WBNB_TOKEN]);
   await Verify.verifyWithArgs(core.ve.address, [core.token.address]);
   await Verify.verifyWithArgs(core.veDist.address, [core.ve.address]);
   await Verify.verifyWithArgs(core.voter.address, [core.ve.address, core.factory.address, core.gaugesFactory.address, core.bribesFactory.address]);
-  await Verify.verifyWithArgs(core.minter.address, [core.voter.address, core.ve.address, core.veDist.address]);
+  await Verify.verifyWithArgs(core.minter.address, [core.ve.address, core.controller.address]);
 
 }
 

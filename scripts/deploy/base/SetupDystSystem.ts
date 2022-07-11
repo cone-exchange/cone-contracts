@@ -50,7 +50,7 @@ async function main() {
     minter,
   ] = await Deploy.deployConeSystem(
     signer,
-    BscTestnetAddresses.WMATIC_TOKEN,
+    BscTestnetAddresses.WBNB_TOKEN,
     voterTokens,
     claimants,
     claimantsAmounts,

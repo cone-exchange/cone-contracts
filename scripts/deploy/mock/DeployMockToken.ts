@@ -35,7 +35,7 @@ async function main() {
   await Verify.verifyWithArgs(mim.address, ['Mock MIM', 'MOCK_MIM', 18, signer.address]);
   await Verify.verifyWithArgs(dai.address, ['Mock DAI', 'MOCK_DAI', 18, signer.address]);
   await Verify.verifyWithArgs(usdt.address, ['Mock USDT', 'MOCK_USDT', 8, signer.address]);
-  await Verify.verifyWithArgs(mai.address, ['Mock MAI', 'MOCK_MAI', 8, signer.address]);
+  await Verify.verifyWithArgs(mai.address, ['Mock MAI', 'MOCK_MAI', 18, signer.address]);
 
 }
 
