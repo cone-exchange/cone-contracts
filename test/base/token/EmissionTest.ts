@@ -1,6 +1,6 @@
 import {
-  DystMinter__factory,
-  DystPair,
+  ConeMinter__factory,
+  ConePair,
   Bribe,
   Bribe__factory,
   Gauge,
@@ -20,7 +20,7 @@ import {Misc} from "../../../scripts/Misc";
 import {formatUnits, parseUnits} from "ethers/lib/utils";
 import {appendFileSync, writeFileSync} from "fs";
 import {BigNumber} from "ethers";
-import {MaticTestnetAddresses} from "../../../scripts/addresses/MaticTestnetAddresses";
+import {BscTestnetAddresses} from "../../../scripts/addresses/BscTestnetAddresses";
 
 const {expect} = chai;
 
@@ -40,7 +40,7 @@ describe("emission tests", function () {
   let ust: Token;
   let mim: Token;
   let dai: Token;
-  let mimUstPair: DystPair;
+  let mimUstPair: ConePair;
 
   let gaugeMimUst: Gauge;
 
@@ -57,8 +57,8 @@ describe("emission tests", function () {
 
     core = await Deploy.deployCore(
       owner,
-      MaticTestnetAddresses.WMATIC_TOKEN,
-      [MaticTestnetAddresses.WMATIC_TOKEN, ust.address, mim.address, dai.address],
+      BscTestnetAddresses.WMATIC_TOKEN,
+      [BscTestnetAddresses.WMATIC_TOKEN, ust.address, mim.address, dai.address],
       [owner.address, owner2.address],
       [amount100At18, amount100At18],
       amount100At18.mul(2)
@@ -145,7 +145,7 @@ describe("emission tests", function () {
     await core.minter.updatePeriod();
 
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
-    // not exact amount coz veDYST balance fluctuation during time
+    // not exact amount coz veCONE balance fluctuation during time
     TestHelper.closer(await core.token.balanceOf(core.veDist.address), parseUnits('188000'), parseUnits('3000'));
     TestHelper.closer(await core.token.balanceOf(core.voter.address), parseUnits('2000000'), parseUnits('0'));
   });
@@ -159,7 +159,7 @@ describe("emission tests", function () {
     await core.minter.updatePeriod();
 
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
-    // not exact amount coz veDYST balance fluctuation during time
+    // not exact amount coz veCONE balance fluctuation during time
     const veDistBal = await core.token.balanceOf(core.veDist.address);
     const voterBal = await core.token.balanceOf(core.voter.address);
     TestHelper.closer(veDistBal, parseUnits('196000'), parseUnits('3000'));
@@ -170,7 +170,7 @@ describe("emission tests", function () {
     await core.minter.updatePeriod();
 
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
-    // not exact amount coz veDYST balance fluctuation during time
+    // not exact amount coz veCONE balance fluctuation during time
     TestHelper.closer((await core.token.balanceOf(core.veDist.address)).sub(veDistBal), parseUnits('150'), parseUnits('50'));
     TestHelper.closer((await core.token.balanceOf(core.voter.address)).sub(voterBal), parseUnits('17000000'), parseUnits('1000000'));
   });
@@ -186,7 +186,7 @@ describe("emission tests", function () {
 
     // minter without enough token should distribute everything to veDist and voter
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
-    // not exact amount coz veDYST balance fluctuation during time
+    // not exact amount coz veCONE balance fluctuation during time
     TestHelper.closer(await core.token.balanceOf(core.veDist.address), parseUnits('196000'), parseUnits('10000'));
     TestHelper.closer(await core.token.balanceOf(core.voter.address), parseUnits('2000000'), parseUnits('10000'));
 
@@ -195,18 +195,18 @@ describe("emission tests", function () {
     const toClaim = await core.veDist.claimable(1);
     expect(toClaim).is.above(parseUnits('30000'));
 
-    expect(await core.token.balanceOf(owner.address)).is.eq(0, "before the first update we should have 0 DYST");
+    expect(await core.token.balanceOf(owner.address)).is.eq(0, "before the first update we should have 0 Cone");
     const veBalance = (await core.ve.locked(1)).amount;
 
     await core.veDist.claim(1);
 
-    // claimed DYST will be deposited to veDYST
+    // claimed CONE will be deposited to veCONE
     TestHelper.closer((await core.ve.locked(1)).amount, toClaim.add(veBalance), parseUnits('10000'));
 
     // ----------- CHECK CLAIM GAUGE ----------
     expect(await core.token.balanceOf(gaugeMimUst.address)).is.eq(0);
 
-    // distribute DYST to all gauges
+    // distribute CONE to all gauges
     await core.voter.distributeAll();
 
     // voter has some dust after distribution
@@ -288,12 +288,12 @@ async function emissionLoop(
     const tx = await gauge.getReward(owner.address, [core.token.address]);
     const receipt = await tx.wait(1);
     // tslint:disable-next-line
-    const log = receipt.events?.find((l: any) => l.topics[0] === DystMinter__factory.createInterface().getEventTopic('Mint'));
+    const log = receipt.events?.find((l: any) => l.topics[0] === ConeMinter__factory.createInterface().getEventTopic('Mint'));
     let weekly = '-1';
     let growth = '-1';
     if (log) {
-      weekly = formatUnits(DystMinter__factory.createInterface().parseLog(log).args[1]);
-      growth = formatUnits(DystMinter__factory.createInterface().parseLog(log).args[2]);
+      weekly = formatUnits(ConeMinter__factory.createInterface().parseLog(log).args[1]);
+      growth = formatUnits(ConeMinter__factory.createInterface().parseLog(log).args[2]);
     }
 
     const tokenBalance = await core.token.balanceOf(owner.address);

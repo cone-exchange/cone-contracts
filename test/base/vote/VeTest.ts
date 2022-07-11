@@ -2,7 +2,7 @@ import {
   Bribe,
   Bribe__factory,
   ContractTestHelper,
-  DystPair,
+  ConePair,
   Gauge,
   Gauge__factory,
   Token
@@ -13,7 +13,7 @@ import chai from "chai";
 import {Deploy} from "../../../scripts/deploy/Deploy";
 import {TimeUtils} from "../../TimeUtils";
 import {TestHelper} from "../../TestHelper";
-import {MaticTestnetAddresses} from "../../../scripts/addresses/MaticTestnetAddresses";
+import {BscTestnetAddresses} from "../../../scripts/addresses/BscTestnetAddresses";
 import {parseUnits} from "ethers/lib/utils";
 import {CoreAddresses} from "../../../scripts/deploy/CoreAddresses";
 import {Misc} from "../../../scripts/Misc";
@@ -35,7 +35,7 @@ describe("ve tests", function () {
   let ust: Token;
   let mim: Token;
   let dai: Token;
-  let pair: DystPair;
+  let pair: ConePair;
 
   let gauge: Gauge;
   let bribe: Bribe;
@@ -53,8 +53,8 @@ describe("ve tests", function () {
 
     core = await Deploy.deployCore(
       owner,
-      MaticTestnetAddresses.WMATIC_TOKEN,
-      [MaticTestnetAddresses.WMATIC_TOKEN, ust.address, mim.address, dai.address],
+      BscTestnetAddresses.WMATIC_TOKEN,
+      [BscTestnetAddresses.WMATIC_TOKEN, ust.address, mim.address, dai.address],
       [owner.address, owner2.address],
       [parseUnits('100'), parseUnits('100')],
       parseUnits('200')

@@ -27,7 +27,7 @@ async function main() {
     + 'usdt: ' + usdt.address + '\n'
     + 'mai: ' + mai.address + '\n';
   console.log(data);
-  writeFileSync('tmp/tokens.txt', data);
+  writeFileSync('tmp/mock_tokens.txt', data);
 
   await Misc.wait(5);
 

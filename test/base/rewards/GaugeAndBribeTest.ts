@@ -1,6 +1,6 @@
 import {
-  DystPair,
-  DystPair__factory,
+  ConePair,
+  ConePair__factory,
   Bribe,
   Bribe__factory,
   Gauge,
@@ -36,9 +36,8 @@ describe("gauge and bribe tests", function () {
   let mim: Token;
   let dai: Token;
   let wmatic: Token;
-  let mimUstPair: DystPair;
-  let mimDaiPair: DystPair;
-  // let ustDaiPair: DystPair;
+  let mimUstPair: ConePair;
+  let mimDaiPair: ConePair;
 
   let gaugeMimUst: Gauge;
   // let gaugeMimDai: Gauge;
@@ -299,7 +298,7 @@ describe("gauge and bribe tests", function () {
       {value: parseUnits('10000')}
     );
     const pairAdr = await core.factory.getPair(mim.address, wmatic.address, true);
-    const pair = DystPair__factory.connect(pairAdr, owner);
+    const pair = ConePair__factory.connect(pairAdr, owner);
 
     await core.voter.createGauge(pairAdr);
 
@@ -432,7 +431,7 @@ describe("gauge and bribe tests", function () {
       true
     );
     const pairAdr = await core.factory.getPair(mim.address, ust.address, true)
-    const pair = DystPair__factory.connect(pairAdr, owner);
+    const pair = ConePair__factory.connect(pairAdr, owner);
     const pairBalance = await pair.balanceOf(owner.address);
     expect(pairBalance).is.not.eq(0);
     await pair.approve(gaugeMimUst.address, pairBalance);
@@ -461,7 +460,7 @@ async function depositToGauge(
     true
   );
   const pairAdr = await core.factory.getPair(token0, token1, true)
-  const pair = DystPair__factory.connect(pairAdr, owner);
+  const pair = ConePair__factory.connect(pairAdr, owner);
   const pairBalance = await pair.balanceOf(owner.address);
   expect(pairBalance).is.not.eq(0);
   await pair.approve(gauge.address, pairBalance);

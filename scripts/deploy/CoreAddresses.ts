@@ -1,26 +1,31 @@
 import {
-  Dyst,
   BribeFactory,
-  DystFactory,
-  GaugeFactory, DystMinter,
-  DystRouter01, DystVoter, GovernanceTreasury, Ve, VeDist
+  Cone,
+  ConeFactory,
+  ConeMinter,
+  ConeRouter01,
+  ConeVoter,
+  GaugeFactory,
+  GovernanceTreasury,
+  Ve,
+  VeDist
 } from "../../typechain";
 
 export class CoreAddresses {
 
-  readonly token: Dyst;
+  readonly token: Cone;
   readonly gaugesFactory: GaugeFactory;
   readonly bribesFactory: BribeFactory;
-  readonly factory: DystFactory;
-  readonly router: DystRouter01;
+  readonly factory: ConeFactory;
+  readonly router: ConeRouter01;
   readonly ve: Ve;
   readonly veDist: VeDist;
-  readonly voter: DystVoter;
-  readonly minter: DystMinter;
+  readonly voter: ConeVoter;
+  readonly minter: ConeMinter;
   readonly treasury: GovernanceTreasury;
 
 
-  constructor(token: Dyst, gaugesFactory: GaugeFactory, bribesFactory: BribeFactory, factory: DystFactory, router: DystRouter01, ve: Ve, veDist: VeDist, voter: DystVoter, minter: DystMinter, treasury: GovernanceTreasury) {
+  constructor(token: Cone, gaugesFactory: GaugeFactory, bribesFactory: BribeFactory, factory: ConeFactory, router: ConeRouter01, ve: Ve, veDist: VeDist, voter: ConeVoter, minter: ConeMinter, treasury: GovernanceTreasury) {
     this.token = token;
     this.gaugesFactory = gaugesFactory;
     this.bribesFactory = bribesFactory;

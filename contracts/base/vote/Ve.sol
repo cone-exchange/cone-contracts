@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.13;
+pragma solidity 0.8.15;
 
 import "../../lib/Base64.sol";
 import "../../interface/IERC20.sol";
@@ -40,8 +40,8 @@ contract Ve is IERC721, IERC721Metadata, IVe, Reentrancy {
   mapping(uint => bool) public voted;
   address public controller;
 
-  string constant public override name = "veDYST";
-  string constant public override symbol = "veDYST";
+  string constant public override name = "veCONE";
+  string constant public override symbol = "veCONE";
   string constant public version = "1.0.0";
   uint8 constant public decimals = 18;
 
@@ -938,7 +938,7 @@ contract Ve is IERC721, IERC721Metadata, IVe, Reentrancy {
     output = string(abi.encodePacked(output, "locked_end ", _toString(_locked_end), '</text><text x="10" y="310" class="base">'));
     output = string(abi.encodePacked(output, "value ", _toString(_value), '</text></svg>'));
 
-    string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "lock #', _toString(_tokenId), '", "description": "Dystopia locks, can be used to boost gauge yields, vote on token emission, and receive bribes", "image": "data:image/svg+xml;base64,', Base64.encode(bytes(output)), '"}'))));
+    string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "lock #', _toString(_tokenId), '", "description": "Cone locks, can be used to boost gauge yields, vote on token emission, and receive bribes", "image": "data:image/svg+xml;base64,', Base64.encode(bytes(output)), '"}'))));
     output = string(abi.encodePacked('data:application/json;base64,', json));
   }
 

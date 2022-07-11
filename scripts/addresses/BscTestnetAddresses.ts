@@ -2,7 +2,7 @@
 
 // noinspection JSUnusedGlobalSymbols
 
-export class MaticTestnetAddresses {
+export class BscTestnetAddresses {
 
   public static ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 

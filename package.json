@@ -1,7 +1,7 @@
 {
-  "name": "dystopia",
+  "name": "cone-exchange",
   "version": "1.0.0",
-  "description": "Dystopia contracts monorepo",
+  "description": "Cone contracts",
   "main": "hardhat.config.ts",
   "directories": {
     "test": "test"
@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dystopia-exchange/dystopia-contracts.git"
+    "url": "https://github.com/cone-exchange/cone-contracts.git"
   },
   "keywords": [
     "solidity",
@@ -29,9 +29,9 @@
     "smart",
     "contracts"
   ],
-  "author": "Dystopia team <admin@dystopia.exchange>",
+  "author": "Cone team <admin@cone.exchange>",
   "license": "MIT",
-  "homepage": "https://dystopia.exchange/",
+  "homepage": "https://cone.exchange/",
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.4",
     "@nomiclabs/hardhat-etherscan": "^3.0.0",

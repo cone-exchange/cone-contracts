@@ -8,15 +8,6 @@ import {BigNumber, ContractTransaction} from "ethers";
 const hre = require("hardhat");
 const log: Logger = new Logger(logSettings);
 
-const MATIC_CHAIN = Common.forCustomChain(
-  'mainnet', {
-    name: 'matic',
-    networkId: 137,
-    chainId: 137
-  },
-  'petersburg'
-);
-
 export class Misc {
   public static readonly MAX_UINT = BigNumber.from('115792089237316195423570985008687907853269984665640564039457584007913129639935');
   public static readonly SECONDS_OF_DAY = 60 * 60 * 24;
@@ -25,31 +16,6 @@ export class Misc {
 
   public static printDuration(text: string, start: number) {
     log.info('>>>' + text, ((Date.now() - start) / 1000).toFixed(1), 'sec');
-  }
-
-  public static getChainConfig() {
-    const net = hre.network.config.chainId;
-    switch (net.chainId) {
-      case 137:
-        return MATIC_CHAIN;
-      default:
-        throw new Error('Unknown net ' + net.chainId)
-    }
-  }
-
-  public static async getNetworkScanUrl(): Promise<string> {
-    const net = hre.network.config.chainId;
-    if (net === 4) {
-      return 'https://api-rinkeby.etherscan.io/api';
-    } else if (net === 1) {
-      return 'https://api.etherscan.io/api';
-    } else if (net === 137) {
-      return 'https://api.polygonscan.com/api'
-    } else if (net === 250) {
-      return 'https://api.ftmscan.com//api'
-    } else {
-      throw Error('network not found ' + net);
-    }
   }
 
   public static async runAndWait(callback: () => Promise<ContractTransaction>, stopOnError = true, wait = true) {
@@ -116,43 +82,4 @@ export class Misc {
   }
 
 }
-
-export type Attributes = [
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber
-] & {
-  strength: BigNumber;
-  dexterity: BigNumber;
-  vitality: BigNumber;
-  energy: BigNumber;
-  damageMin: BigNumber;
-  damageMax: BigNumber;
-  attackRating: BigNumber;
-  defense: BigNumber;
-  blockRating: BigNumber;
-  life: BigNumber;
-  mana: BigNumber;
-  fireResistance: BigNumber;
-  coldResistance: BigNumber;
-  lightningResistance: BigNumber;
-};
-
-export type Stats = [BigNumber, BigNumber, BigNumber, BigNumber] & {
-  level: BigNumber;
-  experience: BigNumber;
-  life: BigNumber;
-  mana: BigNumber;
-};
 

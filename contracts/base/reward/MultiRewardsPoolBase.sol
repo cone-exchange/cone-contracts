@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.13;
+pragma solidity 0.8.15;
 
 import "../../interface/IERC20.sol";
 import "../../interface/IMultiRewardsPool.sol";
@@ -139,7 +139,7 @@ abstract contract MultiRewardsPoolBase is Reentrancy, IMultiRewardsPool {
     uint length = rewardTokens.length;
     require(length > 3, "First 3 tokens should not be removed");
     // keep 3 tokens as guarantee against malicious actions
-    // assume it will be DYST + pool tokens
+    // assume it will be CONE + pool tokens
     uint i = 3;
     bool found = false;
     for (; i < length; i++) {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.13;
+pragma solidity 0.8.15;
 
 import "../../lib/Math.sol";
 import "../../lib/SafeERC20.sol";
@@ -14,7 +14,7 @@ import "../../interface/IController.sol";
 
 /// @title Codifies the minting rules as per ve(3,3),
 ///        abstracted from the token to support any token that allows minting
-contract DystMinter is IMinter {
+contract ConeMinter is IMinter {
   using SafeERC20 for IERC20;
 
   /// @dev Allows minting once per week (reset every Thursday 00:00 UTC)

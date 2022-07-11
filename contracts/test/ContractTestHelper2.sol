@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.13;
+pragma solidity 0.8.15;
 
-import "../base/core/DystPair.sol";
+import "../base/core/ConePair.sol";
 import "../base/vote/Ve.sol";
 
 contract ContractTestHelper2 is IERC721Receiver {

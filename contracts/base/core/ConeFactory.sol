@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.13;
+pragma solidity 0.8.15;
 
 import "../../interface/IFactory.sol";
-import "./DystPair.sol";
+import "./ConePair.sol";
 
-contract DystFactory is IFactory {
+contract ConeFactory is IFactory {
 
   bool public override isPaused;
   address public pauser;
@@ -40,22 +40,22 @@ contract DystFactory is IFactory {
   }
 
   function setPauser(address _pauser) external {
-    require(msg.sender == pauser, "DystFactory: Not pauser");
+    require(msg.sender == pauser, "ConeFactory: Not pauser");
     pendingPauser = _pauser;
   }
 
   function acceptPauser() external {
-    require(msg.sender == pendingPauser, "DystFactory: Not pending pauser");
+    require(msg.sender == pendingPauser, "ConeFactory: Not pending pauser");
     pauser = pendingPauser;
   }
 
   function setPause(bool _state) external {
-    require(msg.sender == pauser, "DystFactory: Not pauser");
+    require(msg.sender == pauser, "ConeFactory: Not pauser");
     isPaused = _state;
   }
 
   function pairCodeHash() external pure override returns (bytes32) {
-    return keccak256(type(DystPair).creationCode);
+    return keccak256(type(ConePair).creationCode);
   }
 
   function getInitializable() external view override returns (address, address, bool) {
@@ -64,14 +64,14 @@ contract DystFactory is IFactory {
 
   function createPair(address tokenA, address tokenB, bool stable)
   external override returns (address pair) {
-    require(tokenA != tokenB, 'DystFactory: IDENTICAL_ADDRESSES');
+    require(tokenA != tokenB, 'ConeFactory: IDENTICAL_ADDRESSES');
     (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-    require(token0 != address(0), 'DystFactory: ZERO_ADDRESS');
-    require(getPair[token0][token1][stable] == address(0), 'DystFactory: PAIR_EXISTS');
+    require(token0 != address(0), 'ConeFactory: ZERO_ADDRESS');
+    require(getPair[token0][token1][stable] == address(0), 'ConeFactory: PAIR_EXISTS');
     // notice salt includes stable as well, 3 parameters
     bytes32 salt = keccak256(abi.encodePacked(token0, token1, stable));
     (_temp0, _temp1, _temp) = (token0, token1, stable);
-    pair = address(new DystPair{salt : salt}());
+    pair = address(new ConePair{salt : salt}());
     getPair[token0][token1][stable] = pair;
     // populate mapping in the reverse direction
     getPair[token1][token0][stable] = pair;

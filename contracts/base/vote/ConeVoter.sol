@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.13;
+pragma solidity 0.8.15;
 
 import "../../interface/IVe.sol";
 import "../../interface/IVoter.sol";
@@ -17,12 +17,12 @@ import "../../interface/IMultiRewardsPool.sol";
 import "../Reentrancy.sol";
 import "../../lib/SafeERC20.sol";
 
-contract DystVoter is IVoter, Reentrancy {
+contract ConeVoter is IVoter, Reentrancy {
   using SafeERC20 for IERC20;
 
   /// @dev The ve token that governs these contracts
   address public immutable override ve;
-  /// @dev DystFactory
+  /// @dev ConeFactory
   address public immutable factory;
   address public immutable token;
   address public immutable gaugeFactory;
@@ -277,7 +277,7 @@ contract DystVoter is IVoter, Reentrancy {
     return pools.length;
   }
 
-  /// @dev Add rewards to this contract. Usually it is DystMinter.
+  /// @dev Add rewards to this contract. Usually it is ConeMinter.
   function notifyRewardAmount(uint amount) external override {
     require(amount != 0, "zero amount");
     uint _totalWeight = totalWeight;

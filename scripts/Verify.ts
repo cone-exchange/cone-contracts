@@ -62,19 +62,4 @@ export class Verify {
     }
   }
 
-
-  public static async verifyProxy(adr: string) {
-    try {
-
-      const resp =
-        await axios.post(
-          (await Misc.getNetworkScanUrl()) +
-          `?module=contract&action=verifyproxycontract&apikey=${argv.networkScanKey}`,
-          `address=${adr}`);
-      // log.info("proxy verify resp", resp.data);
-    } catch (e) {
-      log.info('error proxy verify ' + adr + e);
-    }
-  }
-
 }
