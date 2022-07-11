@@ -90,9 +90,9 @@ contract ConeVoter is IVoter, Reentrancy {
     return _listingFee();
   }
 
-  /// @dev 20% of circulation supply.
+  /// @dev 0.5% of circulation supply.
   function _listingFee() internal view returns (uint) {
-    return (IERC20(token).totalSupply() - IERC20(ve).totalSupply()) / 5;
+    return (IERC20(token).totalSupply() - IERC20(ve).totalSupply()) / 200;
   }
 
   /// @dev Remove all votes for given tokenId.
