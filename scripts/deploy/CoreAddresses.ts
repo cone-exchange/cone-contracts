@@ -6,7 +6,6 @@ import {
   ConeRouter01,
   ConeVoter,
   GaugeFactory,
-  GovernanceTreasury,
   Ve,
   VeDist
 } from "../../typechain";
@@ -22,10 +21,9 @@ export class CoreAddresses {
   readonly veDist: VeDist;
   readonly voter: ConeVoter;
   readonly minter: ConeMinter;
-  readonly treasury: GovernanceTreasury;
 
 
-  constructor(token: Cone, gaugesFactory: GaugeFactory, bribesFactory: BribeFactory, factory: ConeFactory, router: ConeRouter01, ve: Ve, veDist: VeDist, voter: ConeVoter, minter: ConeMinter, treasury: GovernanceTreasury) {
+  constructor(token: Cone, gaugesFactory: GaugeFactory, bribesFactory: BribeFactory, factory: ConeFactory, router: ConeRouter01, ve: Ve, veDist: VeDist, voter: ConeVoter, minter: ConeMinter) {
     this.token = token;
     this.gaugesFactory = gaugesFactory;
     this.bribesFactory = bribesFactory;
@@ -35,6 +33,5 @@ export class CoreAddresses {
     this.veDist = veDist;
     this.voter = voter;
     this.minter = minter;
-    this.treasury = treasury;
   }
 }

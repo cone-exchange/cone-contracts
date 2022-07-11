@@ -44,9 +44,8 @@ describe("minter old tests", function () {
     const vecontract = await ethers.getContractFactory("Ve");
     ve = await vecontract.deploy(ve_underlying.address, controller.address);
     await ve_underlying.mint(owner.address, ethers.BigNumber.from("10000000000000000000000000"));
-    const treasury = await Deploy.deployGovernanceTreasury(owner);
     const ConeFactory = await ethers.getContractFactory("ConeFactory");
-    const factory = await ConeFactory.deploy(treasury.address);
+    const factory = await ConeFactory.deploy();
     await factory.deployed();
     const ConeRouter01 = await ethers.getContractFactory("ConeRouter01");
     const router = await ConeRouter01.deploy(factory.address, owner.address);

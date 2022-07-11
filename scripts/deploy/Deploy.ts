@@ -13,7 +13,6 @@ import {
   ConeVoter,
   Controller,
   GaugeFactory,
-  GovernanceTreasury,
   Token,
   Ve,
   VeDist
@@ -87,12 +86,8 @@ export class Deploy {
     return (await Deploy.deployContract(signer, 'BribeFactory')) as BribeFactory;
   }
 
-  public static async deployConeFactory(signer: SignerWithAddress, treasury: string) {
-    return (await Deploy.deployContract(signer, 'ConeFactory', treasury)) as ConeFactory;
-  }
-
-  public static async deployGovernanceTreasury(signer: SignerWithAddress) {
-    return (await Deploy.deployContract(signer, 'GovernanceTreasury')) as GovernanceTreasury;
+  public static async deployConeFactory(signer: SignerWithAddress) {
+    return (await Deploy.deployContract(signer, 'ConeFactory')) as ConeFactory;
   }
 
   public static async deployConeRouter01(
@@ -184,7 +179,6 @@ export class Deploy {
       veDist as VeDist,
       voter as ConeVoter,
       minter as ConeMinter,
-      treasury as GovernanceTreasury
     );
   }
 
@@ -193,11 +187,10 @@ export class Deploy {
     signer: SignerWithAddress,
     networkToken: string,
   ) {
-    const treasury = await Deploy.deployGovernanceTreasury(signer);
-    const baseFactory = await Deploy.deployConeFactory(signer, treasury.address);
+    const baseFactory = await Deploy.deployConeFactory(signer);
     const router = await Deploy.deployConeRouter01(signer, baseFactory.address, networkToken);
 
-    return [baseFactory, router, treasury];
+    return [baseFactory, router];
   }
 
   public static async deployConeSystem(

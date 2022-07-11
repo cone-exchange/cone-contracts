@@ -44,7 +44,7 @@ describe("pair tests", function () {
     [owner, owner2, owner3] = await ethers.getSigners();
     wmatic = await Deploy.deployContract(owner, 'Token', 'WMATIC', 'WMATIC', 18, owner.address) as Token;
     await wmatic.mint(owner.address, parseUnits('10000'))
-    factory = await Deploy.deployConeFactory(owner, owner.address);
+    factory = await Deploy.deployConeFactory(owner);
     router = await Deploy.deployConeRouter01(owner, factory.address, wmatic.address);
 
     [ust, mim, dai] = await TestHelper.createMockTokensAndMint(owner);
@@ -131,7 +131,7 @@ describe("pair tests", function () {
       to: ust.address,
       stable: true,
     }], owner.address, 9999999999);
-    expect(await pair.quote(mim.address, parseUnits('1'), 1)).is.eq(BigNumber.from(747257));
+    expect(await pair.quote(mim.address, parseUnits('1'), 1)).is.eq(BigNumber.from(747254));
   });
 
   it("current twap price test with points", async function () {
@@ -147,7 +147,7 @@ describe("pair tests", function () {
       to: ust.address,
       stable: true,
     }], owner.address, 9999999999);
-    expect((await pair.prices(mim.address, parseUnits('1'), 1))[0]).is.eq(BigNumber.from(747257));
+    expect((await pair.prices(mim.address, parseUnits('1'), 1))[0]).is.eq(BigNumber.from(747254));
   });
 
   it("burn test", async function () {
@@ -373,7 +373,7 @@ describe("pair tests", function () {
     }
 
     expect(await pair.observationLength()).eq(window + 1);
-    await checkTwap(pair, mim.address, BigNumber.from(177));
+    await checkTwap(pair, mim.address, BigNumber.from(35));
 
     await router.swapExactTokensForTokens(parseUnits('1'), 0, [{
       from: mim.address,

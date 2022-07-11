@@ -285,7 +285,7 @@ describe("gauge and bribe tests", function () {
   });
 
   it("claim fees", async function () {
-    const EXPECTED_FEE = '0.25';
+    const EXPECTED_FEE = '0.1';
     await mim.approve(core.router.address, parseUnits('10000'));
     await core.router.addLiquidityMATIC(
       mim.address,
@@ -351,7 +351,7 @@ describe("gauge and bribe tests", function () {
     expect(await bribe.left(wmatic.address)).is.above(100);
 
     const EXPECTED_FEE2 = 3;
-    const SWAP_AMOUNT = 10000;
+    const SWAP_AMOUNT = 20000;
 
     await core.router.swapExactTokensForTokens(
       SWAP_AMOUNT,
@@ -368,16 +368,16 @@ describe("gauge and bribe tests", function () {
       BigNumber.from('999999999999999999'),
     );
 
-    expect(await mim.balanceOf(fees)).is.eq(EXPECTED_FEE2 + 1);
-    expect(await wmatic.balanceOf(fees)).is.eq(EXPECTED_FEE2 + 1);
+    expect(await mim.balanceOf(fees)).is.eq(EXPECTED_FEE2);
+    expect(await wmatic.balanceOf(fees)).is.eq(EXPECTED_FEE2);
 
     await gauge.claimFees();
 
     expect(await mim.balanceOf(fees)).is.below(3);
     expect(await wmatic.balanceOf(fees)).is.below(3);
 
-    expect(await gauge.fees0()).is.eq(EXPECTED_FEE2 - 1);
-    expect(await gauge.fees1()).is.eq(EXPECTED_FEE2 - 1);
+    expect(await gauge.fees0()).is.eq(EXPECTED_FEE2 - 2);
+    expect(await gauge.fees1()).is.eq(EXPECTED_FEE2 - 2);
   });
 
   it("gauge getReward for not owner or voter should be forbidden", async function () {

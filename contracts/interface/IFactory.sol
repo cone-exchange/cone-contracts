@@ -3,7 +3,6 @@
 pragma solidity 0.8.15;
 
 interface IFactory {
-  function treasury() external view returns (address);
 
   function isPair(address pair) external view returns (bool);
 

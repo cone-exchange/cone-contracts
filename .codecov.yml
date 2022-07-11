@@ -12,3 +12,4 @@ coverage:
         target: 100%
 ignore:
   - "contracts/test"
+  - "contracts/lib"

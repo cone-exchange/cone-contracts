@@ -1,4 +1,4 @@
-import {GaugeFactory, GovernanceTreasury} from "../../../typechain";
+import {GaugeFactory} from "../../../typechain";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {ethers} from "hardhat";
 import chai from "chai";

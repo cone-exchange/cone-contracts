@@ -37,18 +37,18 @@ contract ConePair is IERC20, IPair, Reentrancy {
   uint public immutable chainId;
 
   uint internal constant MINIMUM_LIQUIDITY = 10 ** 3;
+  /// @dev 0.01% swap fee
+  uint internal constant SWAP_FEE_STABLE = 10_000;
   /// @dev 0.05% swap fee
-  uint internal constant SWAP_FEE = 2000;
-  /// @dev 50% of swap fee
-  uint internal constant TREASURY_FEE = 2;
+  uint internal constant SWAP_FEE_VOLATILE = 2_000;
   /// @dev Capture oracle reading every 30 minutes
   uint internal constant PERIOD_SIZE = 1800;
+
 
   address public immutable override token0;
   address public immutable override token1;
   address public immutable fees;
   address public immutable factory;
-  address public immutable treasury;
 
   Observation[] public observations;
 
@@ -93,7 +93,6 @@ contract ConePair is IERC20, IPair, Reentrancy {
 
   constructor() {
     factory = msg.sender;
-    treasury = IFactory(msg.sender).treasury();
     (address _token0, address _token1, bool _stable) = IFactory(msg.sender).getInitializable();
     (token0, token1, stable) = (_token0, _token1, _stable);
     fees = address(new PairFees(_token0, _token1));
@@ -120,6 +119,14 @@ contract ConePair is IERC20, IPair, Reentrancy {
       )
     );
     chainId = block.chainid;
+  }
+
+  function swapFee() public view returns (uint) {
+    if (stable) {
+      return SWAP_FEE_STABLE;
+    } else {
+      return SWAP_FEE_VOLATILE;
+    }
   }
 
   function observationLength() external view returns (uint) {
@@ -165,36 +172,24 @@ contract ConePair is IERC20, IPair, Reentrancy {
 
   /// @dev Accrue fees on token0
   function _update0(uint amount) internal {
-    uint toTreasury = amount / TREASURY_FEE;
-    uint toFees = amount - toTreasury;
-
-    // transfer the fees out to PairFees and Treasury
-    IERC20(token0).safeTransfer(treasury, toTreasury);
-    IERC20(token0).safeTransfer(fees, toFees);
+    // transfer the fees out to PairFees
+    IERC20(token0).safeTransfer(fees, amount);
     // 1e32 adjustment is removed during claim
-    uint _ratio = toFees * _FEE_PRECISION / totalSupply;
+    uint _ratio = amount * _FEE_PRECISION / totalSupply;
     if (_ratio > 0) {
       index0 += _ratio;
     }
-    // keep the same structure of events for compatability
-    emit Treasury(msg.sender, toTreasury, 0);
-    emit Fees(msg.sender, toFees, 0);
+    emit Fees(msg.sender, amount, 0);
   }
 
   /// @dev Accrue fees on token1
   function _update1(uint amount) internal {
-    uint toTreasury = amount / TREASURY_FEE;
-    uint toFees = amount - toTreasury;
-
-    IERC20(token1).safeTransfer(treasury, toTreasury);
-    IERC20(token1).safeTransfer(fees, toFees);
-    uint _ratio = toFees * _FEE_PRECISION / totalSupply;
+    IERC20(token1).safeTransfer(fees, amount);
+    uint _ratio = amount * _FEE_PRECISION / totalSupply;
     if (_ratio > 0) {
       index1 += _ratio;
     }
-    // keep the same structure of events for compatability
-    emit Treasury(msg.sender, 0, toTreasury);
-    emit Fees(msg.sender, 0, toFees);
+    emit Fees(msg.sender, 0, amount);
   }
 
   /// @dev This function MUST be called on any balance changes,
@@ -417,9 +412,9 @@ contract ConePair is IERC20, IPair, Reentrancy {
     {// scope for reserve{0,1}Adjusted, avoids stack too deep errors
       (address _token0, address _token1) = (token0, token1);
       // accrue fees for token0 and move them out of pool
-      if (amount0In > 0) _update0(amount0In / SWAP_FEE);
+      if (amount0In > 0) _update0(amount0In / swapFee());
       // accrue fees for token1 and move them out of pool
-      if (amount1In > 0) _update1(amount1In / SWAP_FEE);
+      if (amount1In > 0) _update1(amount1In / swapFee());
       // since we removed tokens, we need to reconfirm balances,
       // can also simply use previous balance - amountIn/ SWAP_FEE,
       // but doing balanceOf again as safety check
@@ -479,7 +474,7 @@ contract ConePair is IERC20, IPair, Reentrancy {
   function getAmountOut(uint amountIn, address tokenIn) external view override returns (uint) {
     (uint _reserve0, uint _reserve1) = (reserve0, reserve1);
     // remove fee from amount received
-    amountIn -= amountIn / SWAP_FEE;
+    amountIn -= amountIn / swapFee();
     return _getAmountOut(amountIn, tokenIn, _reserve0, _reserve1);
   }
 

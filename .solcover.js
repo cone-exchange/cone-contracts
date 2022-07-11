@@ -1,5 +1,5 @@
 module.exports = {
-  skipFiles: ['test'],
+  skipFiles: ['test','lib'],
   configureYulOptimizer: true,
   solcOptimizerDetails: {
     peephole: false,

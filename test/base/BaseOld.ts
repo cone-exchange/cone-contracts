@@ -1,14 +1,14 @@
 /* tslint:disable:variable-name no-shadowed-variable ban-types no-var-requires no-any */
 import {
-  Bribe, Controller,
+  Bribe,
   Cone,
   ConeFactory,
   ConeMinter,
   ConePair,
   ConeRouter01,
+  Controller,
   Gauge,
   GaugeFactory,
-  GovernanceTreasury__factory,
   StakingRewards,
   Token,
   Ve,
@@ -151,9 +151,8 @@ describe("base old tests", function () {
   });
 
   it("deploy ConeFactory and test pair length", async function () {
-    const treasury = await Deploy.deployGovernanceTreasury(owner);
     const ConeFactory = await ethers.getContractFactory("ConeFactory");
-    factory = await ConeFactory.deploy(treasury.address);
+    factory = await ConeFactory.deploy();
     await factory.deployed();
 
     expect(await factory.allPairsLength()).to.equal(0);
@@ -222,11 +221,10 @@ describe("base old tests", function () {
   it("mint & burn tokens for pair mim-ust", async function () {
     const ust_1 = ethers.BigNumber.from("1000000");
     const mim_1 = ethers.BigNumber.from("1000000000000000000");
-    const before_balance = await ust.balanceOf(owner.address);
     await ust.transfer(pair.address, ust_1);
     await mim.transfer(pair.address, mim_1);
     await pair.mint(owner.address);
-    expect(await pair.getAmountOut(ust_1, ust.address)).to.equal(ethers.BigNumber.from("981745351048687212"));
+    expect(await pair.getAmountOut(ust_1, ust.address)).to.equal(ethers.BigNumber.from("982117769725505988"));
     const output = await router.getAmountOut(ust_1, ust.address, mim.address);
     expect(await pair.getAmountOut(ust_1, ust.address)).to.equal(output.amount);
     expect(output.stable).to.equal(true);
@@ -240,7 +238,7 @@ describe("base old tests", function () {
     await ust.connect(owner2).transfer(pair.address, ust_1);
     await mim.connect(owner2).transfer(pair.address, mim_1);
     await pair.connect(owner2).mint(owner2.address);
-    expect(await pair.connect(owner2).getAmountOut(ust_1, ust.address)).to.equal(ethers.BigNumber.from("991833071663219513"));
+    expect(await pair.connect(owner2).getAmountOut(ust_1, ust.address)).to.equal(ethers.BigNumber.from("992220948146798746"));
   });
 
   it("ConeRouter01 addLiquidity", async function () {
@@ -291,7 +289,6 @@ describe("base old tests", function () {
   });
 
   it("ConeRouter01 pair1 getAmountsOut & swapExactTokensForTokens", async function () {
-    const treasury = await factory.treasury();
     const ust_1 = ethers.BigNumber.from("1000000");
     const route = {from: ust.address, to: mim.address, stable: true}
 
@@ -303,14 +300,10 @@ describe("base old tests", function () {
     await ust.approve(router.address, ust_1);
     await router.swapExactTokensForTokens(ust_1, expected_output[1], [route], owner.address, Date.now());
     const fees = await pair.fees()
-    expect(await ust.balanceOf(fees)).to.be.equal(250);
-    expect(await ust.balanceOf(treasury)).to.be.equal(250);
+    expect(await ust.balanceOf(fees)).to.be.equal(100);
     const b = await ust.balanceOf(owner.address);
     await pair.claimFees();
     expect(await ust.balanceOf(owner.address)).to.be.above(b);
-    const b2 = await ust.balanceOf(owner.address);
-    await GovernanceTreasury__factory.connect(treasury, owner).claim([ust.address]);
-    expect(await ust.balanceOf(owner.address)).to.be.above(b2);
   });
 
   it("ConeRouter01 pair1 getAmountsOut & swapExactTokensForTokens owner2", async function () {
@@ -325,7 +318,7 @@ describe("base old tests", function () {
     await ust.connect(owner2).approve(router.address, ust_1);
     await router.connect(owner2).swapExactTokensForTokens(ust_1, expected_output[1], [route], owner2.address, Date.now());
     const fees = await pair.fees()
-    expect(await ust.balanceOf(fees)).to.be.equal(251);
+    expect(await ust.balanceOf(fees)).to.be.equal(101);
     const b = await ust.balanceOf(owner.address);
     await pair.connect(owner2).claimFees();
     expect(await ust.balanceOf(owner.address)).to.be.equal(b);

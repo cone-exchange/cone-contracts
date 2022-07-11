@@ -5,7 +5,7 @@ import {Deploy} from "../../../scripts/deploy/Deploy";
 import {TimeUtils} from "../../TimeUtils";
 import {BigNumber, utils} from "ethers";
 import {CoreAddresses} from "../../../scripts/deploy/CoreAddresses";
-import {Controller, ConePair, Token} from "../../../typechain";
+import {ConePair, Controller, Token} from "../../../typechain";
 import {TestHelper} from "../../TestHelper";
 import {parseUnits} from "ethers/lib/utils";
 import {Misc} from "../../../scripts/Misc";
@@ -97,10 +97,9 @@ describe("minter tests", function () {
 
   it("wrong total amount test", async function () {
     const controller = await Deploy.deployContract(owner, 'Controller') as Controller;
-    const treasury = await Deploy.deployGovernanceTreasury(owner);
     const gaugesFactory = await Deploy.deployGaugeFactory(owner);
     const bribesFactory = await Deploy.deployBribeFactory(owner);
-    const baseFactory = await Deploy.deployConeFactory(owner, treasury.address);
+    const baseFactory = await Deploy.deployConeFactory(owner);
     const token = await Deploy.deployContract(owner, 'Token', 'VE', 'VE', 18, owner.address) as Token;
     const ve = await Deploy.deployVe(owner, token.address, controller.address);
     const veDist = await Deploy.deployVeDist(owner, ve.address);

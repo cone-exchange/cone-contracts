@@ -10,7 +10,6 @@ contract ConeFactory is IFactory {
   bool public override isPaused;
   address public pauser;
   address public pendingPauser;
-  address public immutable override treasury;
 
   mapping(address => mapping(address => mapping(bool => address))) public override getPair;
   address[] public allPairs;
@@ -29,10 +28,9 @@ contract ConeFactory is IFactory {
     uint allPairsLength
   );
 
-  constructor(address _treasury) {
+  constructor() {
     pauser = msg.sender;
     isPaused = false;
-    treasury = _treasury;
   }
 
   function allPairsLength() external view returns (uint) {

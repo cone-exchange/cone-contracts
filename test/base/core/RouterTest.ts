@@ -39,7 +39,7 @@ describe("router tests", function () {
     [owner, owner2] = await ethers.getSigners();
     wmatic = await Deploy.deployContract(owner, 'Token', 'WMATIC', 'WMATIC', 18, owner.address) as Token;
     await wmatic.mint(owner.address, parseUnits('1000'));
-    factory = await Deploy.deployConeFactory(owner, owner.address);
+    factory = await Deploy.deployConeFactory(owner);
     router = await Deploy.deployConeRouter01(owner, factory.address, wmatic.address);
 
     [ust, mim, dai] = await TestHelper.createMockTokensAndMint(owner);

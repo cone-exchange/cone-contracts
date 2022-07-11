@@ -25,7 +25,7 @@ describe("factory tests", function () {
     [owner, owner2] = await ethers.getSigners();
     wmatic = await Deploy.deployContract(owner, 'Token', 'WMATIC', 'WMATIC', 18, owner.address) as Token;
     usdc = await Deploy.deployContract(owner, 'Token', 'USDC', 'USDC', 6, owner.address) as Token;
-    factory = await Deploy.deployConeFactory(owner, owner.address);
+    factory = await Deploy.deployConeFactory(owner);
   });
 
   after(async function () {
@@ -79,7 +79,6 @@ describe("factory tests", function () {
     const pairAdr = await factory.getPair(wmatic.address, usdc.address, true);
     const pair = ConePair__factory.connect(pairAdr, owner);
     expect(await pair.factory()).eq(factory.address);
-    expect(await pair.treasury()).eq(owner.address);
     expect(await pair.fees()).not.eq(Misc.ZERO_ADDRESS);
     expect(await pair.stable()).eq(true);
   });
