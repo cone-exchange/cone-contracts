@@ -23,7 +23,7 @@ import {CoreAddresses} from "./CoreAddresses";
 const log: Logger = new Logger(logSettings);
 
 const libraries = new Map<string, string>([
-  ['', '']
+  ['Ve', 'VeLogo']
 ]);
 
 export class Deploy {

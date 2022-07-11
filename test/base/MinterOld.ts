@@ -41,8 +41,7 @@ describe("minter old tests", function () {
     const mim = await token.deploy('MIM', 'MIM', 18, owner.address);
     await mim.mint(owner.address, ethers.BigNumber.from("1000000000000000000000000000000"));
     ve_underlying = await Cone.deploy();
-    const vecontract = await ethers.getContractFactory("Ve");
-    ve = await vecontract.deploy(ve_underlying.address, controller.address);
+    ve = await Deploy.deployVe(owner, ve_underlying.address, controller.address)
     await ve_underlying.mint(owner.address, ethers.BigNumber.from("10000000000000000000000000"));
     const ConeFactory = await ethers.getContractFactory("ConeFactory");
     const factory = await ConeFactory.deploy();

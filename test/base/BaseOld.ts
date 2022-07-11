@@ -50,7 +50,6 @@ describe("base old tests", function () {
   let staking: StakingRewards;
   let owner2: SignerWithAddress;
   let owner3: SignerWithAddress;
-  let vecontract;
   let controller: Controller;
   let gauges_factory;
   let bribeToken1Adr: string;
@@ -76,10 +75,9 @@ describe("base old tests", function () {
     await ve_underlying.mint(owner3.address, ethers.BigNumber.from("10000000000000000000000000"));
     late_reward = await token.deploy('LR', 'LR', 18, owner.address);
     await late_reward.mint(owner.address, ethers.BigNumber.from("20000000000000000000000000"));
-    vecontract = await ethers.getContractFactory("Ve");
     const controllerContract = await ethers.getContractFactory("Controller");
     controller = await controllerContract.deploy();
-    ve = await vecontract.deploy(ve_underlying.address, controller.address);
+    ve = await Deploy.deployVe(owner, ve_underlying.address, controller.address)
 
     await ust.deployed();
     await mim.deployed();

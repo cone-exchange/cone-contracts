@@ -2,7 +2,6 @@
 
 pragma solidity 0.8.15;
 
-import "../../lib/Base64.sol";
 import "../../interface/IERC20.sol";
 import "../../interface/IERC721.sol";
 import "../../interface/IERC721Metadata.sol";
@@ -12,6 +11,7 @@ import "../../interface/IController.sol";
 import "../Reentrancy.sol";
 import "../../lib/SafeERC20.sol";
 import "../../lib/Math.sol";
+import "./VeLogo.sol";
 
 contract Ve is IERC721, IERC721Metadata, IVe, Reentrancy {
   using SafeERC20 for IERC20;
@@ -931,37 +931,8 @@ contract Ve is IERC721, IERC721Metadata, IVe, Reentrancy {
     return _supplyAt(point, point.ts + dt);
   }
 
-  function _tokenURI(uint _tokenId, uint _balanceOf, uint _locked_end, uint _value) internal pure returns (string memory output) {
-    output = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: black; font-family: Impact; font-size: 50px; }</style><rect width="100%" height="100%" fill="#aaaaff" /><text x="10" y="60" class="base">';
-    output = string(abi.encodePacked(output, "token ", _toString(_tokenId), '</text><text x="10" y="150" class="base">'));
-    output = string(abi.encodePacked(output, "balanceOf ", _toString(_balanceOf), '</text><text x="10" y="230" class="base">'));
-    output = string(abi.encodePacked(output, "locked_end ", _toString(_locked_end), '</text><text x="10" y="310" class="base">'));
-    output = string(abi.encodePacked(output, "value ", _toString(_value), '</text></svg>'));
-
-    string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "lock #', _toString(_tokenId), '", "description": "Cone locks, can be used to boost gauge yields, vote on token emission, and receive bribes", "image": "data:image/svg+xml;base64,', Base64.encode(bytes(output)), '"}'))));
-    output = string(abi.encodePacked('data:application/json;base64,', json));
-  }
-
-  function _toString(uint value) internal pure returns (string memory) {
-    // Inspired by OraclizeAPI's implementation - MIT license
-    // https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol
-
-    if (value == 0) {
-      return "0";
-    }
-    uint temp = value;
-    uint digits;
-    while (temp != 0) {
-      digits++;
-      temp /= 10;
-    }
-    bytes memory buffer = new bytes(digits);
-    while (value != 0) {
-      digits -= 1;
-      buffer[digits] = bytes1(uint8(48 + uint(value % 10)));
-      value /= 10;
-    }
-    return string(buffer);
+  function _tokenURI(uint _tokenId, uint _balanceOf, uint _lockedEnd, uint _value) internal pure returns (string memory output) {
+    return VeLogo.tokenURI(_tokenId, _balanceOf, _lockedEnd, _value);
   }
 
   function _burn(uint _tokenId) internal {
