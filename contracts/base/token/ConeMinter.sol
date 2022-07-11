@@ -46,6 +46,8 @@ contract ConeMinter is IMinter {
   /// @dev The core parameter for determinate the whole emission dynamic.
   ///       Will be decreased every week.
   uint internal constant _START_BASE_WEEKLY_EMISSION = 20_000_000e18;
+  /// @dev 5% goes to governance to maintain the platform.
+  uint internal constant _GOVERNANCE_ALLOC = 20;
 
 
   IUnderlying public immutable token;
@@ -182,20 +184,27 @@ contract ConeMinter is IMinter {
       }
 
       uint _growth = _calculateGrowth(_weekly);
-      uint _required = _growth + _weekly;
+      uint toGovernance = _growth + _weekly / _GOVERNANCE_ALLOC;
+      uint _required = _growth + _weekly + toGovernance;
       uint _balanceOf = token.balanceOf(address(this));
       if (_balanceOf < _required) {
         token.mint(address(this), _required - _balanceOf);
       }
 
-      IERC20(address(token)).safeTransfer(address(_veDist()), _growth);
-      // checkpoint token balance that was just minted in veDist
-      _veDist().checkpointToken();
-      // checkpoint supply
-      _veDist().checkpointTotalSupply();
+      // send governance part
+      IERC20(address(token)).safeTransfer(IController(controller).governance(), toGovernance);
 
-      token.approve(address(_voter()), _weekly);
-      _voter().notifyRewardAmount(_weekly);
+      IVeDist veDist = _veDist();
+      IVoter voter = _voter();
+
+      IERC20(address(token)).safeTransfer(address(veDist), _growth);
+      // checkpoint token balance that was just minted in veDist
+      veDist.checkpointToken();
+      // checkpoint supply
+      veDist.checkpointTotalSupply();
+
+      token.approve(address(voter), _weekly);
+      voter.notifyRewardAmount(_weekly);
 
       emit Mint(msg.sender, _weekly, _growth, _circulatingSupply(), _circulatingEmission());
     }

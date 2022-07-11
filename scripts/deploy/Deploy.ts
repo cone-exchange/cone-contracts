@@ -147,7 +147,7 @@ export class Deploy {
     minterSum: BigNumber,
     warmingUpPeriod = 2
   ) {
-    const [baseFactory, router, treasury] = await Deploy.deployDex(signer, networkToken);
+    const [baseFactory, router] = await Deploy.deployDex(signer, networkToken);
 
     const [
       controller,

@@ -7,7 +7,7 @@ import {
   Gauge__factory,
   Multicall2,
   StakingRewards,
-  Token
+  Token, Controller, Controller__factory
 } from "../../../typechain";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {ethers} from "hardhat";
@@ -35,6 +35,7 @@ describe("emission tests", function () {
 
   let owner: SignerWithAddress;
   let owner2: SignerWithAddress;
+  let gov: SignerWithAddress;
   let core: CoreAddresses;
   let wmatic: Token;
   let ust: Token;
@@ -50,7 +51,7 @@ describe("emission tests", function () {
 
   before(async function () {
     snapshotBefore = await TimeUtils.snapshot();
-    [owner, owner2] = await ethers.getSigners();
+    [owner, owner2, gov] = await ethers.getSigners();
 
     wmatic = await Deploy.deployContract(owner, 'Token', 'WMATIC', 'WMATIC', 18, owner.address) as Token;
     [ust, mim, dai] = await TestHelper.createMockTokensAndMint(owner);
@@ -101,6 +102,10 @@ describe("emission tests", function () {
     expect(await gaugeMimUst.earned(core.ve.address, owner.address)).to.equal(0);
 
     await core.voter.vote(1, [mimUstPair.address], [100]);
+
+    const controller = await core.minter.controller();
+    await Controller__factory.connect(controller, owner).setGovernance(gov.address);
+    await Controller__factory.connect(controller, gov).acceptGovernance();
   });
 
   after(async function () {
@@ -172,7 +177,7 @@ describe("emission tests", function () {
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
     // not exact amount coz veCONE balance fluctuation during time
     TestHelper.closer((await core.token.balanceOf(core.veDist.address)).sub(veDistBal), parseUnits('150'), parseUnits('50'));
-    TestHelper.closer((await core.token.balanceOf(core.voter.address)).sub(voterBal), parseUnits('17000000'), parseUnits('1000000'));
+    TestHelper.closer((await core.token.balanceOf(core.voter.address)).sub(voterBal), parseUnits('18000000'), parseUnits('1000000'));
   });
 
   it("update period and distribute reward to voter and veDist", async function () {
@@ -194,7 +199,6 @@ describe("emission tests", function () {
 
     const toClaim = await core.veDist.claimable(1);
     expect(toClaim).is.above(parseUnits('30000'));
-
     expect(await core.token.balanceOf(owner.address)).is.eq(0, "before the first update we should have 0 Cone");
     const veBalance = (await core.ve.locked(1)).amount;
 

@@ -6,7 +6,7 @@ import "./interface/IController.sol";
 
 contract Controller is IController {
 
-  address public governance;
+  address public override governance;
   address public pendingGovernance;
 
   address public veDist;
