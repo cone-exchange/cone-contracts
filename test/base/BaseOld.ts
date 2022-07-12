@@ -17,6 +17,7 @@ import {
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {network} from "hardhat";
 import {Deploy} from "../../scripts/deploy/Deploy";
+import {TimeUtils} from "../TimeUtils";
 
 const {expect} = require("chai");
 const {ethers} = require("hardhat");
@@ -53,6 +54,7 @@ describe("base old tests", function () {
   let controller: Controller;
   let gauges_factory;
   let bribeToken1Adr: string;
+  let bribeToken5Adr: string;
 
   it("deploy base coins", async function () {
     [owner, owner2, owner3] = await ethers.getSigners(3);
@@ -419,6 +421,7 @@ describe("base old tests", function () {
     expect(await gauge.earned(ve.address, owner.address)).to.equal(0);
 
     bribeToken1Adr = await bribe.tokenIdToAddress(1);
+    bribeToken5Adr = await bribe.tokenIdToAddress(5);
   });
 
   it("veNFT gauge manipulate", async function () {
@@ -517,7 +520,7 @@ describe("base old tests", function () {
     expect(await bribe.balanceOf(bribeToken1Adr)).to.equal(0);
   });
 
-  it("gauge poke hacking", async function () {
+  it("gauge poke hacking3", async function () {
     expect(await voter.usedWeights(1)).to.equal(0);
     expect(await voter.votes(1, pair.address)).to.equal(0);
     await voter.poke(1);
@@ -526,33 +529,39 @@ describe("base old tests", function () {
   });
 
   it("gauge vote & bribe balanceOf", async function () {
-    await voter.vote(1, [pair.address, pair2.address], [5000, 5000]);
+    // await TimeUtils.advanceBlocksOnTs(60 * 60 * 24 * 7);
+    await ve_underlying.approve(ve.address, ethers.BigNumber.from("1000000000000000000"));
+    await ve.createLock(ethers.BigNumber.from("1000000000000000000"), 4 * 365 * 86400);
+    await voter.vote(5, [pair.address, pair2.address], [5000, 5000]);
     await voter.vote(4, [pair.address, pair2.address], [500000, 500000]);
     console.log(await voter.usedWeights(1));
     console.log(await voter.usedWeights(4));
     expect(await voter.totalWeight()).to.not.equal(0);
-    expect(await bribe.balanceOf(bribeToken1Adr)).to.not.equal(0);
+    expect(await bribe.balanceOf(bribeToken5Adr)).to.not.equal(0);
   });
 
-  it("gauge poke hacking", async function () {
-    const weight_before = (await voter.usedWeights(1));
-    const votes_before = (await voter.votes(1, pair.address));
-    await voter.poke(1);
-    expect(await voter.usedWeights(1)).to.be.below(weight_before);
-    expect(await voter.votes(1, pair.address)).to.be.below(votes_before);
+  it("gauge poke hacking1", async function () {
+    const weight_before = (await voter.usedWeights(5));
+    const votes_before = (await voter.votes(5, pair.address));
+    await voter.poke(5);
+    expect(await voter.usedWeights(5)).to.be.below(weight_before);
+    expect(await voter.votes(5, pair.address)).to.be.below(votes_before);
   });
 
   it("vote hacking break mint", async function () {
-    await voter.vote(1, [pair.address], [5000]);
+    // await TimeUtils.advanceBlocksOnTs(60 * 60 * 24 * 7);
+    await ve_underlying.approve(ve.address, ethers.BigNumber.from("1000000000000000000"));
+    await ve.createLock(ethers.BigNumber.from("1000000000000000000"), 4 * 365 * 86400);
+    await voter.vote(6, [pair.address], [5000]);
 
-    expect(await voter.usedWeights(1)).to.closeTo((await ve.balanceOfNFT(1)), 1000);
-    expect(await bribe.balanceOf(bribeToken1Adr)).to.equal(await voter.votes(1, pair.address));
+    expect(await voter.usedWeights(6)).to.closeTo((await ve.balanceOfNFT(6)), 1000);
+    expect(await bribe.balanceOf(await bribe.tokenIdToAddress(6))).to.equal(await voter.votes(6, pair.address));
   });
 
-  it("gauge poke hacking", async function () {
-    expect(await voter.usedWeights(1)).to.equal(await voter.votes(1, pair.address));
-    await voter.poke(1);
-    expect(await voter.usedWeights(1)).to.equal(await voter.votes(1, pair.address));
+  it("gauge poke hacking2", async function () {
+    expect(await voter.usedWeights(6)).to.equal(await voter.votes(6, pair.address));
+    await voter.poke(6);
+    expect(await voter.usedWeights(6)).to.equal(await voter.votes(6, pair.address));
   });
 
   it("gauge distribute based on voting", async function () {
@@ -876,6 +885,7 @@ describe("base old tests", function () {
     const pair_1000 = ethers.BigNumber.from("1000000000");
     await pair.approve(gauge.address, pair_1000);
     await gauge.deposit(pair_1000, 0);
+    await ve_underlying.mint(owner.address, ethers.BigNumber.from("20000000000000000000000000"));
     await ve_underlying.approve(gauge.address, await ve_underlying.balanceOf(owner.address));
     await gauge.notifyRewardAmount(ve_underlying.address, await ve_underlying.balanceOf(owner.address));
 

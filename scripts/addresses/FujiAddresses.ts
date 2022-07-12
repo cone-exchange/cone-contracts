@@ -1,0 +1,28 @@
+/* tslint:disable:variable-name */
+
+// noinspection JSUnusedGlobalSymbols
+
+export class FujiAddresses {
+
+  public static ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+  // tokens
+  public static WBNB_TOKEN = "0xd00ae08403B9bbb9124bB305C09058E32C39A48c".toLowerCase(); // wavax
+  public static USDC_TOKEN = "0x9277F644CbAC7b678a1a353Af622Fc63760d3a2e".toLowerCase();
+  public static MIM_TOKEN = "0xa61962C91ee2278a1dFA3a96B02C4769E40D0eDB".toLowerCase();
+  public static DAI_TOKEN = "0x23AB65AFA9236473e9dA80Ed4066cB8744279381".toLowerCase();
+  public static USDT_TOKEN = "0xF9E0A1A75bF7A7D9e42CBf3FE20967C090d27DA8".toLowerCase();
+  public static MAI_TOKEN = "0xafcFE7fAFaAC9Db0767cEc188f744480FAEAf4D8".toLowerCase();
+
+}
+
+
+// token: 0x4c7bb402755e8cDaEd13f1C4d95baD7d93FA36f9
+// gaugesFactory: 0x177cA15dC1574FD36160a1520f62a15fa7fD352f
+// bribesFactory: 0xA56Fa7b79D7B16599C4E40f484cf759EECCBf957
+// factory: 0xEbD9F5d760880eb120d895688423BeC54079c595
+// router: 0x1679d789E7c6Cf11D08c84e5fCB6e19DB048d0a3
+// ve: 0xEf50fde1Db5c2D7F3Ce8235d4AB87E629f8106B8
+// veDist: 0x563e4d59d4BE13291Df39be15b94C2aC0bEEA3AB
+// voter: 0x3E405a75b8A57540C9A9B3A12F524679C05C685F
+// minter: 0xBE0FD908ED2F4546652F05fd52E6B82b63E20Ff2

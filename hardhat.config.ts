@@ -28,7 +28,15 @@ const argv = require('yargs/yargs')()
       type: "string",
       default: ''
     },
+    fujiRpcUrl: {
+      type: "string",
+      default: ''
+    },
     networkScanKey: {
+      type: "string",
+      default: ''
+    },
+    networkScanKeyFuji: {
       type: "string",
       default: ''
     },
@@ -84,11 +92,18 @@ export default {
       // gasPrice: 100_000_000_000,
       accounts: [argv.privateKey],
     },
+    fuji: {
+      url: argv.fujiRpcUrl || '',
+      chainId: 43113,
+      // gas: 50_000_000_000,
+      accounts: [argv.privateKey],
+    },
   },
   etherscan: {
     apiKey: {
       bsc: argv.networkScanKey,
-      bscTestnet: argv.networkScanKey
+      bscTestnet: argv.networkScanKey,
+      avalancheFujiTestnet: argv.networkScanKeyFuji
     },
     customChains: []
   },

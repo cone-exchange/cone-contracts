@@ -164,6 +164,11 @@ describe("voter tests", function () {
     expect(await gaugeMimDai.rewardTokensLength()).to.equal(3);
   });
 
+  it("vote delay revert test", async function () {
+    await core.voter.vote(1, [mimUstPair.address], [5000]);
+    await expect(core.voter.vote(1, [mimUstPair.address], [1000])).revertedWith('delay')
+  });
+
   it("registerRewardToken test", async function () {
     expect(await gaugeMimUst.rewardTokensLength()).to.equal(3);
     await expect(core.voter.registerRewardToken(dai.address, gaugeMimUst.address, 0)).revertedWith('!token')
@@ -376,14 +381,16 @@ describe("voter tests", function () {
     await core.voter.vote(1, [mimUstPair.address], [100]);
     expect(await core.voter.votes(1, mimUstPair.address)).above(parseUnits('99'));
     expect(await core.voter.weights(mimUstPair.address)).above(parseUnits('99'));
+    await TimeUtils.advanceBlocksOnTs(60 * 60 * 24 * 7);
     await core.voter.vote(1, [mimUstPair.address, mimDaiPair.address], [500, -500]);
     expect(await core.voter.votes(1, mimUstPair.address)).above(parseUnits('49'));
     expect(await core.voter.votes(1, mimDaiPair.address)).below(parseUnits('-49'));
     await core.voter.reset(1);
     expect(await core.voter.votes(1, mimUstPair.address)).eq(0);
     expect(await core.voter.votes(1, mimDaiPair.address)).eq(0);
+    await TimeUtils.advanceBlocksOnTs(60 * 60 * 24 * 7);
     await core.voter.vote(1, [mimUstPair.address], [100]);
-    expect(await core.voter.votes(1, mimUstPair.address)).above(parseUnits('99'));
+    expect(await core.voter.votes(1, mimUstPair.address)).above(parseUnits('98'));
   });
 
   it("vote with duplicate pool revert test", async function () {

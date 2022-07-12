@@ -29,6 +29,8 @@ contract ConeVoter is IVoter, Reentrancy {
   address public immutable bribeFactory;
   /// @dev Rewards are released over 7 days
   uint internal constant DURATION = 7 days;
+  /// @dev Delay period for votes. 6 days for keep compatibility.
+  uint internal constant VOTE_DELAY = 6 days;
   address public minter;
 
   /// @dev Total voting weight
@@ -56,6 +58,7 @@ contract ConeVoter is IVoter, Reentrancy {
   uint public index;
   mapping(address => uint) public supplyIndex;
   mapping(address => uint) public claimable;
+  mapping(uint => uint) public lastVote;
 
   event GaugeCreated(address indexed gauge, address creator, address indexed bribe, address indexed pool);
   event Voted(address indexed voter, uint tokenId, int256 weight);
@@ -182,7 +185,9 @@ contract ConeVoter is IVoter, Reentrancy {
   function vote(uint tokenId, address[] calldata _poolVote, int256[] calldata _weights) external {
     require(IVe(ve).isApprovedOrOwner(msg.sender, tokenId), "!owner");
     require(_poolVote.length == _weights.length, "!arrays");
+    require(lastVote[tokenId] + VOTE_DELAY < block.timestamp, "delay");
     _vote(tokenId, _poolVote, _weights);
+    lastVote[tokenId] = block.timestamp;
   }
 
   /// @dev Add token to whitelist. Only pools with whitelisted tokens can be added to gauge.
