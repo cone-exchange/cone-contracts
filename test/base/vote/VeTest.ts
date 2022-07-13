@@ -369,7 +369,8 @@ describe("ve tests", function () {
   });
 
   it("tokenURI test", async function () {
-    await core.ve.tokenURI(1);
+    console.log((await core.ve.locked(1)).end.toNumber());
+    console.log(await core.ve.tokenURI(1));
   });
 
   it("balanceOfNFTAt test", async function () {

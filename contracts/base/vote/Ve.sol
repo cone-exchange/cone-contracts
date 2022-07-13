@@ -931,8 +931,9 @@ contract Ve is IERC721, IERC721Metadata, IVe, Reentrancy {
     return _supplyAt(point, point.ts + dt);
   }
 
-  function _tokenURI(uint _tokenId, uint _balanceOf, uint _lockedEnd, uint _value) internal pure returns (string memory output) {
-    return VeLogo.tokenURI(_tokenId, _balanceOf, _lockedEnd, _value);
+  function _tokenURI(uint _tokenId, uint _balanceOf, uint _lockedEnd, uint _value) internal view returns (string memory output) {
+    uint untilEnd = (block.timestamp < _lockedEnd) ? _lockedEnd - block.timestamp : 0;
+    return VeLogo.tokenURI(_tokenId, _balanceOf, untilEnd, _value);
   }
 
   function _burn(uint _tokenId) internal {
