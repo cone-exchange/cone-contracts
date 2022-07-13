@@ -371,6 +371,8 @@ describe("ve tests", function () {
   it("tokenURI test", async function () {
     console.log((await core.ve.locked(1)).end.toNumber());
     console.log(await core.ve.tokenURI(1));
+    await TimeUtils.advanceBlocksOnTs(60 * 60 * 24 * 365 * 5)
+    console.log(await core.ve.tokenURI(1));
   });
 
   it("balanceOfNFTAt test", async function () {
