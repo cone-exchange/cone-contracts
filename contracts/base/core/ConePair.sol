@@ -52,6 +52,7 @@ contract ConePair is IERC20, IPair, Reentrancy {
 
   Observation[] public observations;
 
+  uint internal immutable swapFee;
   uint internal immutable decimals0;
   uint internal immutable decimals1;
 
@@ -96,6 +97,9 @@ contract ConePair is IERC20, IPair, Reentrancy {
     (address _token0, address _token1, bool _stable) = IFactory(msg.sender).getInitializable();
     (token0, token1, stable) = (_token0, _token1, _stable);
     fees = address(new PairFees(_token0, _token1));
+
+    swapFee = _stable ? SWAP_FEE_STABLE : SWAP_FEE_VOLATILE;
+
     if (_stable) {
       name = string(abi.encodePacked("StableV1 AMM - ", IERC721Metadata(_token0).symbol(), "/", IERC721Metadata(_token1).symbol()));
       symbol = string(abi.encodePacked("sAMM-", IERC721Metadata(_token0).symbol(), "/", IERC721Metadata(_token1).symbol()));
@@ -119,14 +123,6 @@ contract ConePair is IERC20, IPair, Reentrancy {
       )
     );
     chainId = block.chainid;
-  }
-
-  function swapFee() public view returns (uint) {
-    if (stable) {
-      return SWAP_FEE_STABLE;
-    } else {
-      return SWAP_FEE_VOLATILE;
-    }
   }
 
   function observationLength() external view returns (uint) {
@@ -412,9 +408,9 @@ contract ConePair is IERC20, IPair, Reentrancy {
     {// scope for reserve{0,1}Adjusted, avoids stack too deep errors
       (address _token0, address _token1) = (token0, token1);
       // accrue fees for token0 and move them out of pool
-      if (amount0In > 0) _update0(amount0In / swapFee());
+      if (amount0In > 0) _update0(amount0In / swapFee);
       // accrue fees for token1 and move them out of pool
-      if (amount1In > 0) _update1(amount1In / swapFee());
+      if (amount1In > 0) _update1(amount1In / swapFee);
       // since we removed tokens, we need to reconfirm balances,
       // can also simply use previous balance - amountIn/ SWAP_FEE,
       // but doing balanceOf again as safety check
@@ -474,7 +470,7 @@ contract ConePair is IERC20, IPair, Reentrancy {
   function getAmountOut(uint amountIn, address tokenIn) external view override returns (uint) {
     (uint _reserve0, uint _reserve1) = (reserve0, reserve1);
     // remove fee from amount received
-    amountIn -= amountIn / swapFee();
+    amountIn -= amountIn / swapFee;
     return _getAmountOut(amountIn, tokenIn, _reserve0, _reserve1);
   }
 

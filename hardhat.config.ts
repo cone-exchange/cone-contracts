@@ -10,6 +10,7 @@ import "hardhat-gas-reporter";
 import "hardhat-tracer";
 import "hardhat-etherscan-abi";
 import "solidity-coverage"
+import "hardhat-abi-exporter"
 
 dotEnvConfig();
 // tslint:disable-next-line:no-var-requires
