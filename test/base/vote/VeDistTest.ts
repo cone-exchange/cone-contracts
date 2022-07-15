@@ -5,7 +5,7 @@ import {Deploy} from "../../../scripts/deploy/Deploy";
 import {TimeUtils} from "../../TimeUtils";
 import {BigNumber} from "ethers";
 import {ContractTestHelper, Controller, Multicall2, Token, Ve, VeDist} from "../../../typechain";
-import {parseUnits} from "ethers/lib/utils";
+import {formatUnits, parseUnits} from "ethers/lib/utils";
 import {Misc} from "../../../scripts/Misc";
 
 const {expect} = chai;
@@ -30,13 +30,15 @@ describe("ve dist tests", function () {
     [owner, owner2] = await ethers.getSigners();
     wmatic = await Deploy.deployContract(owner, 'Token', 'WMATIC', 'WMATIC', 18, owner.address) as Token;
     await wmatic.mint(owner.address, parseUnits('10000'));
+    await wmatic.mint(owner2.address, parseUnits('10000'));
 
     const controller = await Deploy.deployContract(owner, 'Controller') as Controller;
     ve = await Deploy.deployVe(owner, wmatic.address, controller.address);
     veDist = await Deploy.deployVeDist(owner, ve.address);
 
     await wmatic.approve(ve.address, parseUnits('10000'))
-    await ve.createLock(parseUnits('1'), 60 * 60 * 24 * 14);
+    await wmatic.connect(owner2).approve(ve.address, parseUnits('10000'))
+    await ve.createLock(parseUnits('1'), 60 * 60 * 24 * 365 * 4);
 
     helper = await Deploy.deployContract(owner, 'ContractTestHelper') as ContractTestHelper;
   });
@@ -158,6 +160,60 @@ describe("ve dist tests", function () {
     await veDist.claim(2);
   });
 
+  it("claim complex test", async function () {
+    await ve.createLock(parseUnits('1'), 60 * 60 * 24 * 365 * 4);
+    await ve.connect(owner2).createLock(parseUnits('1'), 60 * 60 * 24 * 365 * 4);
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 2);
+
+    await veDist.checkpointToken();
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 2);
+
+    await wmatic.transfer(veDist.address, parseUnits('1'));
+    await veDist.checkpointToken();
+    await TimeUtils.advanceBlocksOnTs(WEEK);
+
+    const bal0 = (await ve.locked(1)).amount;
+    const bal1 = (await ve.locked(2)).amount;
+    const bal2 = (await ve.locked(3)).amount;
+
+    console.log('ve balance before', formatUnits(await wmatic.balanceOf(ve.address)))
+    console.log('vedist balance before', formatUnits(await wmatic.balanceOf(veDist.address)))
+
+    await veDist.claim(1);
+    await veDist.claim(2);
+    await veDist.connect(owner2).claim(3);
+
+    console.log('ve balance', formatUnits(await wmatic.balanceOf(ve.address)))
+    console.log('vedist balance', formatUnits(await wmatic.balanceOf(veDist.address)))
+
+    // expect(+formatUnits(await wmatic.balanceOf(veDist.address))).eq(0)
+
+
+    for (let i = 0; i < 1; i++) {
+      // await wmatic.transfer(veDist.address, parseUnits('1'));
+      await veDist.checkpointToken();
+      await TimeUtils.advanceBlocksOnTs(WEEK);
+
+
+      await veDist.claim(2);
+      await veDist.connect(owner2).claim(3);
+
+
+      console.log('ve balance', i, formatUnits(await wmatic.balanceOf(ve.address)))
+      console.log('vedist balance', i, formatUnits(await wmatic.balanceOf(veDist.address)))
+    }
+    await veDist.claim(1);
+
+    console.log('ve balance final', formatUnits(await wmatic.balanceOf(ve.address)))
+    console.log('vedist balance final', formatUnits(await wmatic.balanceOf(veDist.address)))
+
+    expect(Number(formatUnits((await ve.locked(1)).amount.sub(bal0))).toFixed(2)).eq('0.33')
+    expect(Number(formatUnits((await ve.locked(2)).amount.sub(bal1))).toFixed(2)).eq('0.33')
+    expect(Number(formatUnits((await ve.locked(3)).amount.sub(bal2))).toFixed(2)).eq('0.33')
+  });
+
   it("claim without checkpoints after the launch should return zero", async function () {
     await ve.createLock(parseUnits('1'), 60 * 60 * 24 * 365 * 4);
     const maxUserEpoch = await ve.userPointEpoch(2)
@@ -253,7 +309,7 @@ describe("ve dist tests", function () {
 
   it("claimMany on old block test", async function () {
     await ve.createLock(4 * 365 * 86400, WEEK);
-    await veDist.claimMany([1,2,0]);
+    await veDist.claimMany([1, 2, 0]);
   });
 
 });
