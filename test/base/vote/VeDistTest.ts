@@ -191,12 +191,12 @@ describe("ve dist tests", function () {
     // expect(+formatUnits(await wmatic.balanceOf(veDist.address))).eq(0)
 
 
-    for (let i = 0; i < 1; i++) {
-      // await wmatic.transfer(veDist.address, parseUnits('1'));
+    for (let i = 0; i < 9; i++) {
+      await wmatic.transfer(veDist.address, parseUnits('1'));
       await veDist.checkpointToken();
       await TimeUtils.advanceBlocksOnTs(WEEK);
 
-
+      // await veDist.claim(1);
       await veDist.claim(2);
       await veDist.connect(owner2).claim(3);
 
@@ -204,14 +204,21 @@ describe("ve dist tests", function () {
       console.log('ve balance', i, formatUnits(await wmatic.balanceOf(ve.address)))
       console.log('vedist balance', i, formatUnits(await wmatic.balanceOf(veDist.address)))
     }
+
+    await veDist.checkpointToken();
+    await TimeUtils.advanceBlocksOnTs(WEEK);
+
     await veDist.claim(1);
+    await veDist.claim(2);
+    await veDist.connect(owner2).claim(3);
+
 
     console.log('ve balance final', formatUnits(await wmatic.balanceOf(ve.address)))
     console.log('vedist balance final', formatUnits(await wmatic.balanceOf(veDist.address)))
 
-    expect(Number(formatUnits((await ve.locked(1)).amount.sub(bal0))).toFixed(2)).eq('0.33')
-    expect(Number(formatUnits((await ve.locked(2)).amount.sub(bal1))).toFixed(2)).eq('0.33')
-    expect(Number(formatUnits((await ve.locked(3)).amount.sub(bal2))).toFixed(2)).eq('0.33')
+    expect(Number(formatUnits((await ve.locked(1)).amount.sub(bal0))).toFixed(2)).eq('2.60')
+    expect(Number(formatUnits((await ve.locked(2)).amount.sub(bal1))).toFixed(2)).eq('3.70')
+    expect(Number(formatUnits((await ve.locked(3)).amount.sub(bal2))).toFixed(2)).eq('3.70')
   });
 
   it("claim without checkpoints after the launch should return zero", async function () {
