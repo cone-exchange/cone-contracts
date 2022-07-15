@@ -146,7 +146,8 @@ contract Gauge is IGauge, MultiRewardsPoolBase {
   }
 
   function notifyRewardAmount(address token, uint amount) external {
-    _claimFees();
+    // claim rewards should not ruin distribution process
+    try Gauge(address(this)).claimFees() {} catch {}
     _notifyRewardAmount(token, amount);
   }
 
