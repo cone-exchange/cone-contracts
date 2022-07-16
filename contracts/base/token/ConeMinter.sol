@@ -107,11 +107,7 @@ contract ConeMinter is IMinter {
   }
 
   /// @dev Calculate circulating supply as total token supply - locked supply - veDist balance - minter balance
-  function circulatingSupply() external view returns (uint) {
-    return _circulatingSupply();
-  }
-
-  function _circulatingSupply() internal view returns (uint) {
+  function circulatingSupply() public view returns (uint) {
     return token.totalSupply() - IUnderlying(address(ve)).totalSupply()
     // exclude veDist token balance from circulation - users unable to claim them without lock
     // late claim will lead to wrong circulation supply calculation
@@ -120,46 +116,30 @@ contract ConeMinter is IMinter {
     - token.balanceOf(address(this));
   }
 
-  function _circulatingSupplyAdjusted() internal view returns (uint) {
+  function circulatingSupplyAdjusted() public view returns (uint) {
     // we need a stub supply for cover initial gap when huge amount of tokens was distributed and locked
-    return Math.max(_circulatingSupply(), initialStubCirculation);
+    return Math.max(circulatingSupply(), initialStubCirculation);
   }
 
   /// @dev Emission calculation is 2% of available supply to mint adjusted by circulating / total supply
-  function calculateEmission() external view returns (uint) {
-    return _calculateEmission();
-  }
-
-  function _calculateEmission() internal view returns (uint) {
+  function calculateEmission() public view returns (uint) {
     // use adjusted circulation supply for avoid first weeks gaps
     // baseWeeklyEmission should be decrease every week
-    return baseWeeklyEmission * _circulatingSupplyAdjusted() / token.totalSupply();
+    return baseWeeklyEmission * circulatingSupplyAdjusted() / token.totalSupply();
   }
 
   /// @dev Weekly emission takes the max of calculated (aka target) emission versus circulating tail end emission
-  function weeklyEmission() external view returns (uint) {
-    return _weeklyEmission();
-  }
-
-  function _weeklyEmission() internal view returns (uint) {
-    return Math.max(_calculateEmission(), _circulatingEmission());
+  function weeklyEmission() public view returns (uint) {
+    return Math.max(calculateEmission(), circulatingEmission());
   }
 
   /// @dev Calculates tail end (infinity) emissions as 0.2% of total supply
-  function circulatingEmission() external view returns (uint) {
-    return _circulatingEmission();
-  }
-
-  function _circulatingEmission() internal view returns (uint) {
-    return _circulatingSupply() * _TAIL_EMISSION / _TAIL_EMISSION_DENOMINATOR;
+  function circulatingEmission() public view returns (uint) {
+    return circulatingSupply() * _TAIL_EMISSION / _TAIL_EMISSION_DENOMINATOR;
   }
 
   /// @dev Calculate inflation and adjust ve balances accordingly
-  function calculateGrowth(uint _minted) external view returns (uint) {
-    return _calculateGrowth(_minted);
-  }
-
-  function _calculateGrowth(uint _minted) internal view returns (uint) {
+  function calculateGrowth(uint _minted) public view returns (uint) {
     return IUnderlying(address(ve)).totalSupply() * _minted / token.totalSupply() / _GROWTH_DIVIDER;
   }
 
@@ -168,19 +148,19 @@ contract ConeMinter is IMinter {
     // only trigger if new week
     if (block.timestamp >= activePeriod && initializer == address(0)) {
       activePeriod = block.timestamp / _WEEK * _WEEK + _WEEK;
-      uint _weekly = _weeklyEmission();
+      uint _weekly = weeklyEmission();
       // slightly decrease weekly emission
       baseWeeklyEmission = baseWeeklyEmission
       * _WEEKLY_EMISSION_DECREASE
       / _WEEKLY_EMISSION_DECREASE_DENOMINATOR;
       // decrease stub supply every week if it higher than the real circulation
-      if (initialStubCirculation > _circulatingEmission()) {
+      if (initialStubCirculation > circulatingEmission()) {
         initialStubCirculation = initialStubCirculation
         * _INITIAL_CIRCULATION_DECREASE
         / _INITIAL_CIRCULATION_DECREASE_DENOMINATOR;
       }
 
-      uint _growth = _calculateGrowth(_weekly);
+      uint _growth = calculateGrowth(_weekly);
       uint toGovernance = _growth + _weekly / _GOVERNANCE_ALLOC;
       uint _required = _growth + _weekly + toGovernance;
       uint _balanceOf = token.balanceOf(address(this));
@@ -203,7 +183,7 @@ contract ConeMinter is IMinter {
       token.approve(address(voter), _weekly);
       voter.notifyRewardAmount(_weekly);
 
-      emit Mint(msg.sender, _weekly, _growth, _circulatingSupply(), _circulatingEmission());
+      emit Mint(msg.sender, _weekly, _growth, circulatingSupply(), circulatingEmission());
     }
   }
 
