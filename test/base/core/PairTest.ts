@@ -323,6 +323,19 @@ describe("pair tests", function () {
     await prices(owner, factory, router, true);
   });
 
+  it("set fees test", async function () {
+    await factory.setSwapFee(pair.address,100_000);
+    expect(await pair.swapFee()).eq(100_000)
+  });
+
+  it("set fees revert too high", async function () {
+    await expect(factory.setSwapFee(pair.address,999)).revertedWith('max');
+  });
+
+  it("set fees revert not factory", async function () {
+    await expect(pair.setSwapFee(1000)).revertedWith('!factory');
+  });
+
   it("swap loop test", async function () {
     const loop1 = await swapInLoop(owner, factory, router, 1);
     const loop100 = await swapInLoop(owner, factory, router, 10);

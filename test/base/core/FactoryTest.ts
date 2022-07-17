@@ -73,6 +73,10 @@ describe("factory tests", function () {
     await expect(factory.createPair(wmatic.address, Misc.ZERO_ADDRESS, true)).revertedWith('ZERO_ADDRESS');
   });
 
+  it("set fees revert ", async function () {
+    await expect(factory.connect(owner2).setSwapFee(wmatic.address, 1)).revertedWith("ConeFactory: Not pauser");
+  });
+
   it("check created pair variables", async function () {
     await factory.createPair(wmatic.address, usdc.address, true);
     await expect(factory.createPair(wmatic.address, usdc.address, true)).revertedWith('PAIR_EXISTS');

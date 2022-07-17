@@ -41,6 +41,8 @@ contract ConePair is IERC20, IPair, Reentrancy {
   uint internal constant SWAP_FEE_STABLE = 10_000;
   /// @dev 0.05% swap fee
   uint internal constant SWAP_FEE_VOLATILE = 2_000;
+  /// @dev 0.1% max allowed swap fee
+  uint internal constant SWAP_FEE_MAX = 1_000;
   /// @dev Capture oracle reading every 30 minutes
   uint internal constant PERIOD_SIZE = 1800;
 
@@ -52,7 +54,7 @@ contract ConePair is IERC20, IPair, Reentrancy {
 
   Observation[] public observations;
 
-  uint internal immutable swapFee;
+  uint public swapFee;
   uint internal immutable decimals0;
   uint internal immutable decimals1;
 
@@ -91,6 +93,7 @@ contract ConePair is IERC20, IPair, Reentrancy {
   );
   event Sync(uint reserve0, uint reserve1);
   event Claim(address indexed sender, address indexed recipient, uint amount0, uint amount1);
+  event FeesChanged(uint newValue);
 
   constructor() {
     factory = msg.sender;
@@ -123,6 +126,13 @@ contract ConePair is IERC20, IPair, Reentrancy {
       )
     );
     chainId = block.chainid;
+  }
+
+  function setSwapFee(uint value) external {
+    require(msg.sender == factory, "!factory");
+    require(value >= SWAP_FEE_MAX, "max");
+    swapFee = value;
+    emit FeesChanged(value);
   }
 
   function observationLength() external view returns (uint) {

@@ -52,6 +52,11 @@ contract ConeFactory is IFactory {
     isPaused = _state;
   }
 
+  function setSwapFee(address pair, uint value) external {
+    require(msg.sender == pauser, "ConeFactory: Not pauser");
+    ConePair(pair).setSwapFee(value);
+  }
+
   function pairCodeHash() external pure override returns (bytes32) {
     return keccak256(type(ConePair).creationCode);
   }
