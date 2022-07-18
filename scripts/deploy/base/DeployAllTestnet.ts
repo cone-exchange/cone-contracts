@@ -9,22 +9,13 @@ import {parseUnits} from 'ethers/lib/utils';
 import {FujiAddresses} from '../../addresses/FujiAddresses';
 
 
-// const voterTokens = [
-//   BscTestnetAddresses.WBNB_TOKEN,
-//   BscTestnetAddresses.USDC_TOKEN,
-//   BscTestnetAddresses.MIM_TOKEN,
-//   BscTestnetAddresses.DAI_TOKEN,
-//   BscTestnetAddresses.USDT_TOKEN,
-//   BscTestnetAddresses.MAI_TOKEN,
-// ];
-
 const voterTokens = [
-  FujiAddresses.WBNB_TOKEN,
-  FujiAddresses.USDC_TOKEN,
-  FujiAddresses.MIM_TOKEN,
-  FujiAddresses.DAI_TOKEN,
-  FujiAddresses.USDT_TOKEN,
-  FujiAddresses.MAI_TOKEN,
+  BscTestnetAddresses.WBNB_TOKEN,
+  BscTestnetAddresses.USDC_TOKEN,
+  BscTestnetAddresses.MIM_TOKEN,
+  BscTestnetAddresses.DAI_TOKEN,
+  BscTestnetAddresses.USDT_TOKEN,
+  BscTestnetAddresses.MAI_TOKEN,
 ];
 
 const claimants = [
@@ -66,9 +57,10 @@ async function main() {
     + 'veDist: ' + core.veDist.address + '\n'
     + 'voter: ' + core.voter.address + '\n'
     + 'minter: ' + core.minter.address + '\n'
+    + 'controller: ' + core.controller.address + '\n'
 
   console.log(data);
-  writeFileSync('tmp/core.txt', data);
+  writeFileSync('tmp/core_testnet.txt', data);
 
   await Misc.wait(5);
 

@@ -21,14 +21,14 @@ const voterTokens = [
 ];
 
 const claimants = [
-  ''
+  BscAddresses.GOVERNANCE
 ];
 
 const claimantsAmounts = [
   parseUnits("10000000"),
 ];
 
-const FACTORY = '';
+const FACTORY = '0x0EFc2D2D054383462F2cD72eA2526Ef7687E1016';
 
 async function main() {
   const signer = (await ethers.getSigners())[0];

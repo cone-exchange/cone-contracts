@@ -12,6 +12,7 @@ import {
 import chai from "chai";
 import {Deploy} from "../scripts/deploy/Deploy";
 import {ethers} from "hardhat";
+import {Misc} from '../scripts/Misc';
 
 const {expect} = chai;
 
@@ -27,12 +28,14 @@ export class TestHelper {
     tokenBAmount: BigNumber,
     stable: boolean
   ) {
+    console.log('start add liquidity', tokenA, tokenB)
     TestHelper.gte(await IERC20__factory.connect(tokenA, owner).balanceOf(owner.address), tokenAAmount);
     TestHelper.gte(await IERC20__factory.connect(tokenB, owner).balanceOf(owner.address), tokenBAmount);
-    await IERC20__factory.connect(tokenA, owner).approve(router.address, tokenAAmount);
-    await IERC20__factory.connect(tokenB, owner).approve(router.address, tokenBAmount);
-    await router.connect(owner).addLiquidity(tokenA, tokenB, stable, tokenAAmount, tokenBAmount, 0, 0, owner.address, Date.now());
+    await Misc.runAndWait(() => IERC20__factory.connect(tokenA, owner).approve(router.address, tokenAAmount));
+    await Misc.runAndWait(() => IERC20__factory.connect(tokenB, owner).approve(router.address, tokenBAmount));
+    await Misc.runAndWait(() => router.connect(owner).addLiquidity(tokenA, tokenB, stable, tokenAAmount, tokenBAmount, 0, 0, owner.address, Date.now() + 99999999));
     const address = await factory.getPair(tokenA, tokenB, stable);
+    console.log('liquidity added', address);
     return ConePair__factory.connect(address, owner);
   }
 

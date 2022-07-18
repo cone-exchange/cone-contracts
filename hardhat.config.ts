@@ -49,6 +49,10 @@ const argv = require('yargs/yargs')()
       type: "number",
       default: 0
     },
+    bscTestForkBlock: {
+      type: "number",
+      default: 21142730
+    },
   }).argv;
 
 
@@ -69,6 +73,7 @@ export default {
               undefined,
         blockNumber:
           argv.hardhatChainId === 56 ? argv.bscForkBlock !== 0 ? argv.bscForkBlock : undefined :
+          argv.hardhatChainId === 97 ? argv.bscTestForkBlock !== 0 ? argv.bscTestForkBlock : undefined :
               undefined
       } : undefined,
       accounts: {

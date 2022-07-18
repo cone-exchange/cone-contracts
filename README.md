@@ -172,16 +172,28 @@ function distribute(address token) external
 
 | Name                 | Address                                                                                                                            |
 |:---------------------|:-----------------------------------------------------------------------------------------------------------------------------------|
-| ConeFactory          | [0xd055b086180cB6dac888792C9307970Ed10CF137](https://testnet.bscscan.com/address/0xd055b086180cB6dac888792C9307970Ed10CF137#code)  |
-| ConeRouter01         | [0x6B2e0fACD2F2A8f407aC591067Ac06b5d29247E4](https://testnet.bscscan.com/address/0x6B2e0fACD2F2A8f407aC591067Ac06b5d29247E4#code)  |
-| BribeFactory         | [0x099C314F792e1F91f53765Fc64AaDCcf4dCf1538](https://testnet.bscscan.com/address/0x099C314F792e1F91f53765Fc64AaDCcf4dCf1538#code)  |
-| GaugesFactory        | [0x00379dD90b2A337C4652E286e4FBceadef940a21](https://testnet.bscscan.com/address/0x00379dD90b2A337C4652E286e4FBceadef940a21#code)  |
-| CONE                 | [0xd353254872E8797B159594c1E528b8Be9a6cb1F8](https://testnet.bscscan.com/address/0xd353254872E8797B159594c1E528b8Be9a6cb1F8#code)  |
-| ConeMinter           | [0x57Cf87b92E38f619bBeB2F13800730e668d69d7D](https://testnet.bscscan.com/address/0x57Cf87b92E38f619bBeB2F13800730e668d69d7D#code)  |
-| ConeVoter            | [0x81367059892aa1D8503a79a0Af9254DD0a09afBF](https://testnet.bscscan.com/address/0x81367059892aa1D8503a79a0Af9254DD0a09afBF#code)  |
-| veCONE               | [0x7AD5935EA295c4E743e4f2f5B4CDA951f41223c2](https://testnet.bscscan.com/address/0x7AD5935EA295c4E743e4f2f5B4CDA951f41223c2#code)  |
-| VeDist               | [0x2A3df2a428EB74B241Cf1d3374Fb07983c7059F3](https://testnet.bscscan.com/address/0x2A3df2a428EB74B241Cf1d3374Fb07983c7059F3#code)  |
-| Controller           | [0x0A0846c978a56D6ea9D2602eeb8f977B21F3207F](https://testnet.bscscan.com/address/0x0A0846c978a56D6ea9D2602eeb8f977B21F3207F#code)  |
+| ConeFactory          | [0x422282F18CFE573e7dc6BEcC7242ffad43340aF8](https://testnet.bscscan.com/address/0x422282F18CFE573e7dc6BEcC7242ffad43340aF8#code)  |
+| ConeRouter01         | [0x13d862a01d0AB241509A2e47e31d0db04e9b9F49](https://testnet.bscscan.com/address/0x13d862a01d0AB241509A2e47e31d0db04e9b9F49#code)  |
+| BribeFactory         | [0xD8a4054d63fCb0030BC73E2323344Ae59A19E92b](https://testnet.bscscan.com/address/0xD8a4054d63fCb0030BC73E2323344Ae59A19E92b#code)  |
+| GaugesFactory        | [0xC363F3D4e1C005bf5321040653A088F71Bb974Ab](https://testnet.bscscan.com/address/0xC363F3D4e1C005bf5321040653A088F71Bb974Ab#code)  |
+| CONE                 | [0x875976AeF383Fe4135B93C3989671056c4dEcDFF](https://testnet.bscscan.com/address/0x875976AeF383Fe4135B93C3989671056c4dEcDFF#code)  |
+| ConeMinter           | [0x0C6868831c504Fb0bB61A54FEfC6464804380508](https://testnet.bscscan.com/address/0x0C6868831c504Fb0bB61A54FEfC6464804380508#code)  |
+| ConeVoter            | [0xC9d5917A0cb82450Cd687AF31eCAaC967D7F121C](https://testnet.bscscan.com/address/0xC9d5917A0cb82450Cd687AF31eCAaC967D7F121C#code)  |
+| veCONE               | [0xbEB411eAD71713E7f2814326498Ff2a054242206](https://testnet.bscscan.com/address/0xbEB411eAD71713E7f2814326498Ff2a054242206#code)  |
+| VeDist               | [0xa4EB2E1284D9E30fb656Fe6b34c1680Ef5d4cBFC](https://testnet.bscscan.com/address/0xa4EB2E1284D9E30fb656Fe6b34c1680Ef5d4cBFC#code)  |
+| Controller           | [0x6ce857d3037e87465b003aCbA264DDF2Cec6D5E4](https://testnet.bscscan.com/address/0x6ce857d3037e87465b003aCbA264DDF2Cec6D5E4#code)  |
 
 ### BSC deployment
 
+| Name                 | Address                                                                                                                   |
+|:---------------------|:--------------------------------------------------------------------------------------------------------------------------|
+| ConeFactory          | [0x0EFc2D2D054383462F2cD72eA2526Ef7687E1016](https://bscscan.com/address/0x0EFc2D2D054383462F2cD72eA2526Ef7687E1016#code) |
+| ConeRouter01         | [0xbf1fc29668e5f5Eaa819948599c9Ac1B1E03E75F](https://bscscan.com/address/0xbf1fc29668e5f5Eaa819948599c9Ac1B1E03E75F#code) |
+| BribeFactory         | [](https://bscscan.com/address/#code)                                                                                     |
+| GaugesFactory        | [](https://bscscan.com/address/#code)                                                                                     |
+| CONE                 | [](https://bscscan.com/address/#code)                                                                                     |
+| ConeMinter           | [](https://bscscan.com/address/#code)                                                                                     |
+| ConeVoter            | [](https://bscscan.com/address/#code)                                                                                     |
+| veCONE               | [](https://bscscan.com/address/#code)                                                                                     |
+| VeDist               | [](https://bscscan.com/address/#code)                                                                                     |
+| Controller           | [](https://bscscan.com/address/#code)                                                                                     |
