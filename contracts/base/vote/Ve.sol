@@ -22,7 +22,6 @@ contract Ve is IERC721, IERC721Metadata, IVe, Reentrancy {
   uint internal constant MULTIPLIER = 1 ether;
 
   address immutable public override token;
-  uint public supply;
   mapping(uint => LockedBalance) public locked;
 
   mapping(uint => uint) public ownershipChange;
@@ -87,7 +86,6 @@ contract Ve is IERC721, IERC721Metadata, IVe, Reentrancy {
     uint ts
   );
   event Withdraw(address indexed provider, uint tokenId, uint value, uint ts);
-  event Supply(uint prevSupply, uint supply);
 
   /// @notice Contract constructor
   /// @param token_ `ERC20CRV` token address
@@ -564,9 +562,7 @@ contract Ve is IERC721, IERC721Metadata, IVe, Reentrancy {
     DepositType depositType
   ) internal {
     LockedBalance memory _locked = lockedBalance;
-    uint supplyBefore = supply;
 
-    supply = supplyBefore + _value;
     LockedBalance memory oldLocked;
     (oldLocked.amount, oldLocked.end) = (_locked.amount, _locked.end);
     // Adding to existing lock, or if a lock is expired - creating a new one
@@ -588,7 +584,6 @@ contract Ve is IERC721, IERC721Metadata, IVe, Reentrancy {
     }
 
     emit Deposit(from, _tokenId, _value, _locked.end, depositType, block.timestamp);
-    emit Supply(supplyBefore, supplyBefore + _value);
   }
 
   function voting(uint _tokenId) external override {
@@ -722,8 +717,6 @@ contract Ve is IERC721, IERC721Metadata, IVe, Reentrancy {
 
     uint value = uint(int256(_locked.amount));
     locked[_tokenId] = LockedBalance(0, 0);
-    uint supplyBefore = supply;
-    supply = supplyBefore - value;
 
     // old_locked can have either expired <= timestamp or zero end
     // _locked has only 0 end
@@ -736,7 +729,6 @@ contract Ve is IERC721, IERC721Metadata, IVe, Reentrancy {
     _burn(_tokenId);
 
     emit Withdraw(msg.sender, _tokenId, value, block.timestamp);
-    emit Supply(supplyBefore, supplyBefore - value);
   }
 
   // The following ERC20/minime-compatible methods are not real balanceOf and supply!

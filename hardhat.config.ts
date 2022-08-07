@@ -51,7 +51,7 @@ const argv = require('yargs/yargs')()
     },
     bscTestForkBlock: {
       type: "number",
-      default: 21142730
+      default: 0
     },
   }).argv;
 
