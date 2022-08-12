@@ -161,7 +161,7 @@ contract ConeMinter is IMinter {
       }
 
       uint _growth = calculateGrowth(_weekly);
-      uint toGovernance = _growth + _weekly / _GOVERNANCE_ALLOC;
+      uint toGovernance = (_growth + _weekly) / _GOVERNANCE_ALLOC;
       uint _required = _growth + _weekly + toGovernance;
       uint _balanceOf = token.balanceOf(address(this));
       if (_balanceOf < _required) {

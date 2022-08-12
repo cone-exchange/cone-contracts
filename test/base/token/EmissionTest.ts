@@ -156,10 +156,12 @@ describe("emission tests", function () {
   });
 
   it("update period twice", async function () {
+    const govAdr = gov.address;
     await TimeUtils.advanceBlocksOnTs(WEEK * 2);
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
     expect(await core.token.balanceOf(core.veDist.address)).is.eq(0);
     expect(await core.token.balanceOf(core.voter.address)).is.eq(0);
+    expect(await core.token.balanceOf(govAdr)).is.eq(0);
 
     await core.minter.updatePeriod();
 
@@ -167,8 +169,10 @@ describe("emission tests", function () {
     // not exact amount coz veCONE balance fluctuation during time
     const veDistBal = await core.token.balanceOf(core.veDist.address);
     const voterBal = await core.token.balanceOf(core.voter.address);
+    const govBal = await core.token.balanceOf(govAdr);
     TestHelper.closer(veDistBal, parseUnits('990000'), parseUnits('10000'));
     TestHelper.closer(voterBal, parseUnits('2000000'), parseUnits('0'));
+    TestHelper.closer(govBal, parseUnits('150000'), parseUnits('5000'));
 
     await TimeUtils.advanceBlocksOnTs(WEEK);
 
@@ -176,8 +180,9 @@ describe("emission tests", function () {
 
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
     // not exact amount coz veCONE balance fluctuation during time
-    TestHelper.closer((await core.token.balanceOf(core.veDist.address)).sub(veDistBal), parseUnits('350'), parseUnits('50'));
-    TestHelper.closer((await core.token.balanceOf(core.voter.address)).sub(voterBal), parseUnits('15000000'), parseUnits('1000000'));
+    TestHelper.closer((await core.token.balanceOf(core.veDist.address)).sub(veDistBal), parseUnits('400'), parseUnits('50'));
+    TestHelper.closer((await core.token.balanceOf(core.voter.address)).sub(voterBal), parseUnits('13500000'), parseUnits('1000000'));
+    TestHelper.closer((await core.token.balanceOf(govAdr)).sub(govBal), parseUnits('670000'), parseUnits('5000'));
   });
 
   it("update period and distribute reward to voter and veDist", async function () {
