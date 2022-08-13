@@ -2,12 +2,10 @@ import {Deploy} from "../Deploy";
 import hre, {ethers} from "hardhat";
 import {Verify} from "../../Verify";
 import {Misc} from "../../Misc";
-import {BigNumber} from "ethers";
-import {BscTestnetAddresses} from "../../addresses/BscTestnetAddresses";
 import {writeFileSync} from "fs";
 import {formatUnits, parseUnits} from "ethers/lib/utils";
 import {BscAddresses} from '../../addresses/BscAddresses';
-import {ConeMinter, ConeMinter__factory, ConeVoter__factory, IERC20__factory} from "../../../typechain";
+import {ConeMinter__factory, ConeVoter__factory, IERC20__factory} from "../../../typechain";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {TimeUtils} from "../../../test/TimeUtils";
 
@@ -24,31 +22,31 @@ const voterTokens = [
 ];
 
 const claimants = [
-  BscAddresses.GOVERNANCE,
+  BscAddresses.GOVERNANCE, // for Governance
   BscAddresses.GOVERNANCE, // for Sphere
   BscAddresses.GOVERNANCE, // for Usd+
-  BscAddresses.GOVERNANCE, // for Alpaca
   BscAddresses.GOVERNANCE, // for Qi-dao
-  BscAddresses.GOVERNANCE, // for Frax Finance
   BscAddresses.GOVERNANCE, // for Beefy
   BscAddresses.GOVERNANCE, // for Valas
   BscAddresses.GOVERNANCE, // for DotDot
   BscAddresses.GOVERNANCE, // for TUSD
   BscAddresses.GOVERNANCE, // for Stader
+  BscAddresses.GOVERNANCE, // for reserve1
+  BscAddresses.GOVERNANCE, // for reserve2
 ];
 
 const claimantsAmounts = [
   parseUnits("10000000"), // Governance
-  parseUnits("200000"), // Sphere
-  parseUnits("200000"), // Usd+
-  parseUnits("200000"), // Alpaca
-  parseUnits("200000"), // Qi-dao
-  parseUnits("200000"), // Frax Finance
-  parseUnits("200000"), // Beefy
-  parseUnits("200000"), // Valas
-  parseUnits("200000"), // DotDot
-  parseUnits("200000"), // TUSD
-  parseUnits("200000"), // Stader
+  parseUnits("500000"), // Sphere
+  parseUnits("500000"), // Usd+
+  parseUnits("500000"), // Qi-dao
+  parseUnits("500000"), // Beefy
+  parseUnits("500000"), // Valas
+  parseUnits("500000"), // DotDot
+  parseUnits("500000"), // TUSD
+  parseUnits("500000"), // Stader
+  parseUnits("500000"), // reserve1
+  parseUnits("500000"), // reserve2
 ];
 
 const FACTORY = '0x0EFc2D2D054383462F2cD72eA2526Ef7687E1016';
@@ -64,7 +62,7 @@ async function main() {
     signer = (await ethers.getSigners())[0];
   }
 
-  const minterMax = parseUnits((12_000_000).toString());
+  const minterMax = parseUnits((15_000_000).toString());
 
   const [
     controller,
@@ -77,7 +75,6 @@ async function main() {
     minter,
   ] = await Deploy.deployConeSystem(
     signer,
-    BscTestnetAddresses.WBNB_TOKEN,
     voterTokens,
     claimants,
     claimantsAmounts,
@@ -108,13 +105,14 @@ async function main() {
 
     await Misc.wait(5);
 
+    await Verify.verify(controller.address);
     await Verify.verify(token.address);
     await Verify.verify(gaugesFactory.address);
     await Verify.verify(bribesFactory.address);
-    await Verify.verifyWithArgs(ve.address, [token.address]);
+    await Verify.verifyWithArgs(ve.address, [token.address, controller.address]);
     await Verify.verifyWithArgs(veDist.address, [ve.address]);
     await Verify.verifyWithArgs(voter.address, [ve.address, FACTORY, gaugesFactory.address, bribesFactory.address]);
-    await Verify.verifyWithArgs(minter.address, [voter.address, ve.address, veDist.address]);
+    await Verify.verifyWithArgs(minter.address, [ve.address, controller.address]);
   }
 }
 

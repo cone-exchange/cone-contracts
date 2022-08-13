@@ -158,7 +158,6 @@ export class Deploy {
       minter,
     ] = await Deploy.deployConeSystem(
       signer,
-      networkToken,
       voterTokens,
       minterClaimants,
       minterClaimantsAmounts,
@@ -194,7 +193,6 @@ export class Deploy {
 
   public static async deployConeSystem(
     signer: SignerWithAddress,
-    networkToken: string,
     voterTokens: string[],
     minterClaimants: string[],
     minterClaimantsAmounts: BigNumber[],

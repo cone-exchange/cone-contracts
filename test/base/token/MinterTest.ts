@@ -80,11 +80,11 @@ describe("minter tests", function () {
   });
 
   it("calculate_emission test", async function () {
-    expect(await core.minter.calculateEmission()).is.eq(BigNumber.from('2000000000000000000000000'));
+    expect(await core.minter.calculateEmission()).is.eq(BigNumber.from('1904761904761904761904761'));
   });
 
   it("weekly_emission test", async function () {
-    expect(await core.minter.weeklyEmission()).is.eq(BigNumber.from('2000000000000000000000000'));
+    expect(await core.minter.weeklyEmission()).is.eq(BigNumber.from('1904761904761904761904761'));
   });
 
   it("circulating_emission test", async function () {

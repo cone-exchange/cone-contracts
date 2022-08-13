@@ -86,6 +86,7 @@ contract ConeMinter is IMinter {
   ) external {
     require(initializer == msg.sender, "Not initializer");
     token.mint(address(this), totalAmount);
+    token.mint(IController(controller).governance(), totalAmount / _GOVERNANCE_ALLOC);
     initialStubCirculation = totalAmount * _STUB_CIRCULATION / _STUB_CIRCULATION_DENOMINATOR;
     token.approve(address(ve), type(uint).max);
     uint sum;

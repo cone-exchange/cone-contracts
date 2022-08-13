@@ -151,8 +151,8 @@ describe("emission tests", function () {
 
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
     // not exact amount coz veCONE balance fluctuation during time
-    TestHelper.closer(await core.token.balanceOf(core.veDist.address), parseUnits('950000'), parseUnits('10000'));
-    TestHelper.closer(await core.token.balanceOf(core.voter.address), parseUnits('2000000'), parseUnits('0'));
+    TestHelper.closer(await core.token.balanceOf(core.veDist.address), parseUnits('880000'), parseUnits('10000'));
+    TestHelper.closer(await core.token.balanceOf(core.voter.address), parseUnits('1950000'), parseUnits('50000'));
   });
 
   it("update period twice", async function () {
@@ -170,9 +170,9 @@ describe("emission tests", function () {
     const veDistBal = await core.token.balanceOf(core.veDist.address);
     const voterBal = await core.token.balanceOf(core.voter.address);
     const govBal = await core.token.balanceOf(govAdr);
-    TestHelper.closer(veDistBal, parseUnits('990000'), parseUnits('10000'));
-    TestHelper.closer(voterBal, parseUnits('2000000'), parseUnits('0'));
-    TestHelper.closer(govBal, parseUnits('150000'), parseUnits('5000'));
+    TestHelper.closer(veDistBal, parseUnits('895000'), parseUnits('10000'));
+    TestHelper.closer(voterBal, parseUnits('1904761'), parseUnits('10'));
+    TestHelper.closer(govBal, parseUnits('140000'), parseUnits('5000'));
 
     await TimeUtils.advanceBlocksOnTs(WEEK);
 
@@ -180,9 +180,9 @@ describe("emission tests", function () {
 
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
     // not exact amount coz veCONE balance fluctuation during time
-    TestHelper.closer((await core.token.balanceOf(core.veDist.address)).sub(veDistBal), parseUnits('400'), parseUnits('50'));
+    TestHelper.closer((await core.token.balanceOf(core.veDist.address)).sub(veDistBal), parseUnits('455'), parseUnits('50'));
     TestHelper.closer((await core.token.balanceOf(core.voter.address)).sub(voterBal), parseUnits('13500000'), parseUnits('1000000'));
-    TestHelper.closer((await core.token.balanceOf(govAdr)).sub(govBal), parseUnits('670000'), parseUnits('5000'));
+    TestHelper.closer((await core.token.balanceOf(govAdr)).sub(govBal), parseUnits('680000'), parseUnits('5000'));
   });
 
   it("update period and distribute reward to voter and veDist", async function () {
@@ -197,13 +197,14 @@ describe("emission tests", function () {
     // minter without enough token should distribute everything to veDist and voter
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
     // not exact amount coz veCONE balance fluctuation during time
-    TestHelper.closer(await core.token.balanceOf(core.veDist.address), parseUnits('990000'), parseUnits('10000'));
-    TestHelper.closer(await core.token.balanceOf(core.voter.address), parseUnits('2000000'), parseUnits('10000'));
+    TestHelper.closer(await core.token.balanceOf(core.veDist.address), parseUnits('895000'), parseUnits('10000'));
+    TestHelper.closer(await core.token.balanceOf(core.voter.address), parseUnits('1904000'), parseUnits('10000'));
 
     // ------------ CHECK CLAIM VE ----------
 
     const toClaim = await core.veDist.claimable(1);
     expect(toClaim).is.above(parseUnits('30000'));
+    await core.token.transfer(core.token.address, await core.token.balanceOf(owner.address))
     expect(await core.token.balanceOf(owner.address)).is.eq(0, "before the first update we should have 0 Cone");
     const veBalance = (await core.ve.locked(1)).amount;
 
@@ -220,7 +221,7 @@ describe("emission tests", function () {
 
     // voter has some dust after distribution
     TestHelper.closer(await core.token.balanceOf(core.voter.address), parseUnits('0'), parseUnits('100'));
-    TestHelper.closer(await core.token.balanceOf(gaugeMimUst.address), parseUnits('2000000'), parseUnits('10000'));
+    TestHelper.closer(await core.token.balanceOf(gaugeMimUst.address), parseUnits('1904000'), parseUnits('10000'));
 
     expect(await core.token.balanceOf(owner.address)).is.eq(0);
 
@@ -232,7 +233,7 @@ describe("emission tests", function () {
     await TimeUtils.advanceBlocksOnTs(WEEK);
 
     await gaugeMimUst.getReward(owner.address, [core.token.address]);
-    TestHelper.closer(await core.token.balanceOf(owner.address), parseUnits('2000000'), parseUnits('10000'));
+    TestHelper.closer(await core.token.balanceOf(owner.address), parseUnits('1904000'), parseUnits('10000'));
   });
 
   // for manual testing

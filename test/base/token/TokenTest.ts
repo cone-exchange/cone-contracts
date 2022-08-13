@@ -85,6 +85,7 @@ describe("token tests", function () {
   });
 
   it("transfer from to too much reject", async function () {
+    await core.token.transfer(core.token.address, await core.token.balanceOf(owner.address))
     const minter = await Misc.impersonate(await core.token.minter());
     await core.token.connect(minter).mint(owner2.address, 100);
     await core.token.connect(owner2).approve(owner.address, 100);
