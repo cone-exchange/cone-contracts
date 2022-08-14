@@ -201,16 +201,23 @@ export class Deploy {
     warmingUpPeriod: number,
   ) {
     const controller = await Deploy.deployContract(signer, 'Controller') as Controller;
+    await Misc.delay(10_000);
     const token = await Deploy.deployCone(signer);
+    await Misc.delay(10_000);
     const ve = await Deploy.deployVe(signer, token.address, controller.address);
+    await Misc.delay(10_000);
     const gaugesFactory = await Deploy.deployGaugeFactory(signer);
+    await Misc.delay(10_000);
     const bribesFactory = await Deploy.deployBribeFactory(signer);
+    await Misc.delay(10_000);
 
 
     const veDist = await Deploy.deployVeDist(signer, ve.address);
+    await Misc.delay(10_000);
     const voter = await Deploy.deployConeVoter(signer, ve.address, baseFactory, gaugesFactory.address, bribesFactory.address);
-
+    await Misc.delay(10_000);
     const minter = await Deploy.deployConeMinter(signer, ve.address, controller.address);
+    await Misc.delay(10_000);
 
     await Misc.runAndWait(() => token.setMinter(minter.address));
     await Misc.runAndWait(() => veDist.setDepositor(minter.address));

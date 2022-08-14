@@ -128,6 +128,8 @@ async function check(signer: SignerWithAddress, minter: string, token: string, v
   const tokenCtr = IERC20__factory.connect(token, signer);
   const voterCtr = ConeVoter__factory.connect(voter, signer);
 
+  console.log("govBal after deploy", formatUnits(await tokenCtr.balanceOf(signer.address)));
+
   const activePeriod = (await minterCtr.activePeriod()).toNumber();
 
   console.log('activePeriod', activePeriod, new Date(activePeriod * 1000));
@@ -145,12 +147,8 @@ async function check(signer: SignerWithAddress, minter: string, token: string, v
 
     await minterCtr.updatePeriod();
 
-    const govBal = await tokenCtr.balanceOf(signer.address);
-    const veDistBal = await tokenCtr.balanceOf(veDist);
-    const voterBal = await tokenCtr.balanceOf(voter);
-
-    console.log("govBal", formatUnits(govBal));
-    console.log("veDistBal", formatUnits(veDistBal));
-    console.log("voterBal", formatUnits(voterBal));
+    console.log("govBal", formatUnits(await tokenCtr.balanceOf(signer.address)));
+    console.log("veDistBal", formatUnits(await tokenCtr.balanceOf(veDist)));
+    console.log("voterBal", formatUnits(await tokenCtr.balanceOf(voter)));
   }
 }
