@@ -1,7 +1,7 @@
 import {
   ConeFactory,
   ConePair__factory,
-  ConeRouter01,
+  ConeRouter01, SwapLibrary,
   Token,
   TokenWithFee
 } from "../../../typechain";
@@ -32,6 +32,7 @@ describe("router tests", function () {
   let mim: Token;
   let dai: Token;
   let tokenWithFee: TokenWithFee;
+  let swapLib: SwapLibrary;
 
 
   before(async function () {
@@ -41,6 +42,7 @@ describe("router tests", function () {
     await wmatic.mint(owner.address, parseUnits('1000'));
     factory = await Deploy.deployConeFactory(owner);
     router = await Deploy.deployConeRouter01(owner, factory.address, wmatic.address);
+    swapLib = await Deploy.deployContract(owner, 'SwapLibrary', router.address) as SwapLibrary;
 
     [ust, mim, dai] = await TestHelper.createMockTokensAndMint(owner);
     await ust.transfer(owner2.address, utils.parseUnits('100', 6));
@@ -976,6 +978,23 @@ describe("router tests", function () {
       owner.address,
       99999999999
     )).revertedWith('ConeRouter: ETH_TRANSFER_FAILED');
+  });
+
+  it("swap library test", async function () {
+    await mim.approve(router.address, parseUnits('10'));
+
+    await router.addLiquidityMATIC(
+      mim.address,
+      true,
+      parseUnits('1'),
+      0,
+      parseUnits('1'),
+      owner.address,
+      99999999999,
+      {value: parseUnits('10')}
+    );
+
+    await swapLib["getTradeDiff(uint256,address,address,bool)"](parseUnits('1'), mim.address, wmatic.address, true);
   });
 
 });
