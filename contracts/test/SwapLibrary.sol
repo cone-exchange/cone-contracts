@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 
 import "../interface/IRouter.sol";
 import "../interface/IPair.sol";
+import "../lib/Math.sol";
 
 contract SwapLibrary {
 
@@ -50,6 +51,49 @@ contract SwapLibrary {
     uint sample = tokenIn == t0 ? r0 * dec1 / r1 : r1 * dec0 / r0;
     a = _getAmountOut(sample, tokenIn, r0, r1, t0, dec0, dec1, st) * 1e18 / sample;
     b = _getAmountOut(amountIn, tokenIn, r0, r1, t0, dec0, dec1, st) * 1e18 / amountIn;
+  }
+
+  function getTradeDiffSimple(uint amountIn, address tokenIn, address tokenOut, bool stable, uint sample) external view returns (uint a, uint b) {
+    (uint dec0, uint dec1, uint r0, uint r1, bool st, address t0,) = IPair(router.pairFor(tokenIn, tokenOut, stable)).metadata();
+    if (sample == 0) {
+      sample = _calcSample(tokenIn, t0, dec0, dec1);
+    }
+    a = _getAmountOut(sample, tokenIn, r0, r1, t0, dec0, dec1, st) * 1e18 / sample;
+    b = _getAmountOut(amountIn, tokenIn, r0, r1, t0, dec0, dec1, st) * 1e18 / amountIn;
+  }
+
+  function getTradeDiff2(uint amountIn, address tokenIn, address tokenOut, bool stable) external view returns (uint a, uint b) {
+    (uint dec0, uint dec1, uint r0, uint r1, bool st, address t0,) = IPair(router.pairFor(tokenIn, tokenOut, stable)).metadata();
+    uint sample;
+    if (!stable) {
+      sample = tokenIn == t0 ? r0 * dec1 / r1 : r1 * dec0 / r0;
+    } else {
+      sample = _calcSample(tokenIn, t0, dec0, dec1);
+    }
+    a = _getAmountOut(sample, tokenIn, r0, r1, t0, dec0, dec1, st) * 1e18 / sample;
+    b = _getAmountOut(amountIn, tokenIn, r0, r1, t0, dec0, dec1, st) * 1e18 / amountIn;
+  }
+
+  function getTradeDiff3(uint amountIn, address tokenIn, address tokenOut, bool stable) external view returns (uint a, uint b) {
+    (uint dec0, uint dec1, uint r0, uint r1, bool st, address t0,) = IPair(router.pairFor(tokenIn, tokenOut, stable)).metadata();
+    uint sample;
+    if (!stable) {
+      a = amountIn * 1e18 / (tokenIn == t0 ? r0 * 1e18 / r1 : r1 * 1e18 / r0);
+    } else {
+      sample = _calcSample(tokenIn, t0, dec0, dec1);
+      a = _getAmountOut(sample, tokenIn, r0, r1, t0, dec0, dec1, st) * amountIn / sample;
+    }
+    b = _getAmountOut(amountIn, tokenIn, r0, r1, t0, dec0, dec1, st);
+  }
+
+  function _calcSample(address tokenIn, address t0, uint dec0, uint dec1) internal pure returns (uint){
+    uint tokenInDecimals = tokenIn == t0 ? dec0 : dec1;
+    uint tokenOutDecimals = tokenIn == t0 ? dec1 : dec0;
+    return 10 ** Math.max(
+      (tokenInDecimals > tokenOutDecimals ?
+    tokenInDecimals - tokenOutDecimals
+    : tokenOutDecimals - tokenInDecimals)
+    , 1) * 10_000;
   }
 
   function getTradeDiff(uint amountIn, address tokenIn, address pair) external view returns (uint a, uint b) {

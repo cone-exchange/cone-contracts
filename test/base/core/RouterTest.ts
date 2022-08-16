@@ -12,8 +12,9 @@ import {Deploy} from "../../../scripts/deploy/Deploy";
 import {TimeUtils} from "../../TimeUtils";
 import {TestHelper} from "../../TestHelper";
 import {BigNumber, utils} from "ethers";
-import {parseUnits} from "ethers/lib/utils";
+import {formatUnits, parseUnits} from "ethers/lib/utils";
 import {Misc} from "../../../scripts/Misc";
+import {address} from "hardhat/internal/core/config/config-validation";
 
 const {expect} = chai;
 
@@ -950,51 +951,127 @@ describe("router tests", function () {
   });
 
   it("router with broken matic should revert", async function () {
-    const brokenMatic = await Deploy.deployContract(owner, 'BrokenWMATIC', 'WMATIC', 'WMATIC', 18, owner.address)
-    const routerWithBrokenMatic = await Deploy.deployConeRouter01(owner, factory.address, brokenMatic.address);
-
-    await mim.approve(routerWithBrokenMatic.address, parseUnits('10'));
-
-    await routerWithBrokenMatic.addLiquidityMATIC(
-      mim.address,
-      true,
-      parseUnits('1'),
-      0,
-      parseUnits('1'),
-      owner.address,
-      99999999999,
-      {value: parseUnits('1')}
-    );
-
-    await mim.approve(routerWithBrokenMatic.address, parseUnits('1000'));
-    await expect(routerWithBrokenMatic.swapExactTokensForMATIC(
-      parseUnits('0.01'),
-      0,
-      [{
-        to: brokenMatic.address,
-        from: mim.address,
-        stable: true,
-      }],
-      owner.address,
-      99999999999
-    )).revertedWith('ConeRouter: ETH_TRANSFER_FAILED');
+    await check(
+      owner,
+      router,
+      mim,
+      wmatic,
+      swapLib,
+      true
+    )
   });
 
-  it("swap library test", async function () {
-    await mim.approve(router.address, parseUnits('10'));
-
-    await router.addLiquidityMATIC(
-      mim.address,
-      true,
-      parseUnits('1'),
-      0,
-      parseUnits('1'),
-      owner.address,
-      99999999999,
-      {value: parseUnits('10')}
-    );
-
-    await swapLib["getTradeDiff(uint256,address,address,bool)"](parseUnits('1'), mim.address, wmatic.address, true);
+  it("swap library volatile test", async function () {
+    await check(
+      owner,
+      router,
+      mim,
+      wmatic,
+      swapLib,
+      false
+    )
   });
 
 });
+
+
+async function check(
+  owner: SignerWithAddress,
+  router: ConeRouter01,
+  tokenIn: Token,
+  wmatic: Token,
+  swapLib: SwapLibrary,
+  stable: boolean
+) {
+  await tokenIn.approve(router.address, parseUnits('10'));
+
+  await router.addLiquidityMATIC(
+    tokenIn.address,
+    stable,
+    parseUnits('1'),
+    0,
+    parseUnits('1'),
+    owner.address,
+    99999999999,
+    {value: parseUnits('10')}
+  );
+
+  let data = await swapLib["getTradeDiff(uint256,address,address,bool)"](parseUnits('1'), tokenIn.address, wmatic.address, stable);
+  if (stable) {
+    expect(formatUnits(data.a)).eq('3.22020182710050887');
+    expect(formatUnits(data.b)).eq('2.204033780209746315');
+  } else {
+    expect(formatUnits(data.a)).eq('9.0909090909090909');
+    expect(formatUnits(data.b)).eq('5.0');
+  }
+
+  data = await swapLib.getTradeDiff2(parseUnits('1'), tokenIn.address, wmatic.address, stable);
+
+  if (stable) {
+    expect(formatUnits(data.a)).eq('3.42192');
+    expect(formatUnits(data.b)).eq('2.204033780209746315');
+  } else {
+    expect(formatUnits(data.a)).eq('9.0909090909090909');
+    expect(formatUnits(data.b)).eq('5.0');
+  }
+
+  data = await swapLib.getTradeDiff3(parseUnits('1'), tokenIn.address, wmatic.address, stable);
+
+  if (stable) {
+    expect(formatUnits(data.a)).eq('3.42192');
+    expect(formatUnits(data.b)).eq('2.204033780209746315');
+  } else {
+    expect(formatUnits(data.a)).eq('10.0');
+    expect(formatUnits(data.b)).eq('5.0');
+  }
+
+  data = await swapLib.getTradeDiffSimple(parseUnits('1'), tokenIn.address, wmatic.address, stable, 0);
+
+  if (stable) {
+    expect(formatUnits(data.a)).eq('3.42192');
+    expect(formatUnits(data.b)).eq('2.204033780209746315');
+  } else {
+    expect(formatUnits(data.a)).eq('9.99999');
+    expect(formatUnits(data.b)).eq('5.0');
+  }
+
+  const balWmatic0 = await wmatic.balanceOf(owner.address);
+  await router.swapExactTokensForTokens(
+    10_000,
+    0,
+    [{
+      from: tokenIn.address,
+      to: wmatic.address,
+      stable
+    }],
+    owner.address,
+    99999999999
+  );
+  const balWmaticAfter0 = await wmatic.balanceOf(owner.address);
+  const getWmatic0 = +formatUnits(balWmaticAfter0.sub(balWmatic0)) * (1e18 / 10_000)
+  if (stable) {
+    expect(getWmatic0).eq(3.4215000000000004);
+  } else {
+    expect(getWmatic0).eq(9.9949);
+  }
+
+  const balWmatic = await wmatic.balanceOf(owner.address);
+  await router.swapExactTokensForTokens(
+    parseUnits('1'),
+    0,
+    [{
+      from: tokenIn.address,
+      to: wmatic.address,
+      stable
+    }],
+    owner.address,
+    99999999999
+  );
+  const balWmaticAfter = await wmatic.balanceOf(owner.address);
+  const getWmatic = formatUnits(balWmaticAfter.sub(balWmatic))
+  if (stable) {
+    expect(getWmatic).eq('2.203881529381578687');
+  } else {
+    expect(getWmatic).eq('4.998749687421780514');
+  }
+}
