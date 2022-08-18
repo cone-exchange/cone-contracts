@@ -216,9 +216,9 @@ describe("ve dist tests", function () {
     console.log('ve balance final', formatUnits(await wmatic.balanceOf(ve.address)))
     console.log('vedist balance final', formatUnits(await wmatic.balanceOf(veDist.address)))
 
-    expect(Number(formatUnits((await ve.locked(1)).amount.sub(bal0))).toFixed(1)).eq('2.6')
-    expect(Number(formatUnits((await ve.locked(2)).amount.sub(bal1))).toFixed(1)).eq('3.7')
-    expect(Number(formatUnits((await ve.locked(3)).amount.sub(bal2))).toFixed(1)).eq('3.7')
+    expect(Number(formatUnits((await ve.locked(1)).amount.sub(bal0))).toFixed(0)).eq('2')
+    expect(Number(formatUnits((await ve.locked(2)).amount.sub(bal1))).toFixed(0)).eq('4')
+    expect(Number(formatUnits((await ve.locked(3)).amount.sub(bal2))).toFixed(0)).eq('4')
   });
 
   it("claim without checkpoints after the launch should return zero", async function () {

@@ -151,8 +151,8 @@ describe("emission tests", function () {
 
     expect(await core.token.balanceOf(core.minter.address)).is.eq(0);
     // not exact amount coz veCONE balance fluctuation during time
-    TestHelper.closer(await core.token.balanceOf(core.veDist.address), parseUnits('880000'), parseUnits('10000'));
-    TestHelper.closer(await core.token.balanceOf(core.voter.address), parseUnits('1950000'), parseUnits('50000'));
+    TestHelper.closer(await core.token.balanceOf(core.veDist.address), parseUnits('900000'), parseUnits('50000'));
+    TestHelper.closer(await core.token.balanceOf(core.voter.address), parseUnits('2000000'), parseUnits('100000'));
   });
 
   it("update period twice", async function () {
