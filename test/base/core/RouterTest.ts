@@ -972,6 +972,26 @@ describe("router tests", function () {
     )
   });
 
+  it("swap library normalized reserves test", async function () {
+    await ust.approve(router.address, parseUnits('1', 6));
+    await router.addLiquidityMATIC(
+      ust.address,
+      true,
+      parseUnits('1', 6),
+      0,
+      parseUnits('1'),
+      owner.address,
+      99999999999,
+      {value: parseUnits('10')}
+    );
+    const r = await swapLib.getNormalizedReserves(
+      ust.address,
+      wmatic.address,
+      true,);
+    expect(r[0]).not.equal(BigNumber.from(0));
+    expect(r[1]).not.equal(BigNumber.from(0));
+  });
+
 });
 
 
