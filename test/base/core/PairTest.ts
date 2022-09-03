@@ -48,9 +48,9 @@ describe("pair tests", function () {
     router = await Deploy.deployConeRouter01(owner, factory.address, wmatic.address);
 
     [ust, mim, dai] = await TestHelper.createMockTokensAndMint(owner);
-    await ust.transfer(owner2.address, utils.parseUnits('100', 6));
-    await mim.transfer(owner2.address, utils.parseUnits('100'));
-    await dai.transfer(owner2.address, utils.parseUnits('100'));
+    await ust.transfer(owner2.address, utils.parseUnits('10000000000', 6));
+    await mim.transfer(owner2.address, utils.parseUnits('10000000000'));
+    await dai.transfer(owner2.address, utils.parseUnits('10000000000'));
 
     pair = await TestHelper.addLiquidity(
       factory,
@@ -324,12 +324,12 @@ describe("pair tests", function () {
   });
 
   it("set fees test", async function () {
-    await factory.setSwapFee(pair.address,100_000);
+    await factory.setSwapFee(pair.address, 100_000);
     expect(await pair.swapFee()).eq(100_000)
   });
 
   it("set fees revert too high", async function () {
-    await expect(factory.setSwapFee(pair.address,999)).revertedWith('max');
+    await expect(factory.setSwapFee(pair.address, 999)).revertedWith('max');
   });
 
   it("set fees revert not factory", async function () {
@@ -350,6 +350,68 @@ describe("pair tests", function () {
     const tx = await pair.swap(0, 10, owner.address, '0x')
     const receipt = await tx.wait()
     expect(receipt.gasUsed).is.below(BigNumber.from(280000));
+  });
+
+  it("price without impact", async function () {
+    const p = await TestHelper.addLiquidity(
+      factory,
+      router,
+      owner,
+      mim.address,
+      dai.address,
+      utils.parseUnits('1000000000'),
+      utils.parseUnits('2000000000'),
+      true
+    );
+
+    // console.log('f normal', await p.f(parseUnits('1'), parseUnits('1')));
+    // console.log('f very big', await p.f(parseUnits('1', 28), parseUnits('1', 28)));
+    // console.log('f 100', await p.f(100, 100));
+    // console.log('f 3', await p.f(3, 3));
+    // console.log('f 2', await p.f(2, 2));
+
+    // const priceMim = await p.priceWithoutImpact(mim.address)
+    // console.log('PRICE MIM', priceMim.toString(), formatUnits(priceMim));
+    const priceMimImp = await p.getAmountOut(parseUnits('1'), mim.address);
+    console.log('PRICE MIM imp', formatUnits(priceMimImp));
+    // const priceDai = await p.priceWithoutImpact(dai.address)
+    // console.log('PRICE DAI', priceDai.toString(), formatUnits(priceDai));
+    const priceDaiImp = await p.getAmountOut(parseUnits('1'), dai.address);
+    console.log('PRICE DAI imp', formatUnits(priceDaiImp));
+
+    const reserves = await p.getReserves();
+    console.log('price0', getStablePrice(+formatUnits(reserves[0]), +formatUnits(reserves[1])))
+    console.log('price1', getStablePrice(+formatUnits(reserves[1]), +formatUnits(reserves[0])))
+
+    const balance = await dai.balanceOf(owner.address);
+    await mim.transfer(p.address, parseUnits('1'));
+    const out = await p.getAmountOut(parseUnits('1'), mim.address);
+    await p.swap(0, out, owner.address, '0x')
+    console.log('TRADE pure:', formatUnits((await dai.balanceOf(owner.address)).sub(balance)), formatUnits(out))
+    expect(await dai.balanceOf(owner.address)).eq(balance.add(out))
+
+    await mim.transfer(p.address, parseUnits('1'));
+    await expect(p.swap(0, (await p.getAmountOut(parseUnits('1'), mim.address)).add(1), owner.address, '0x')).revertedWith('ConePair: K')
+
+    // balance = await dai.balanceOf(owner.address);
+    // reserves = await p.getReserves();
+    // out = parseUnits(getAmountOut(10000, +formatUnits(reserves[0]), +formatUnits(reserves[1])).toFixed(18))
+    // console.log('OUT offchain', formatUnits(out))
+    // console.log('OUT chain', formatUnits(await p.getAmountOut(parseUnits('10000'), mim.address)))
+    // await mim.transfer(p.address, parseUnits('10000'));
+    // await p.swap(0, out, owner.address, '0x')
+    // console.log('TRADE offchain:', formatUnits((await dai.balanceOf(owner.address)).sub(balance)), formatUnits(out))
+    // expect(await dai.balanceOf(owner.address)).eq(balance.add(out))
+
+
+    // reserves = await p.getReserves();
+    // await mim.transfer(p.address, parseUnits('1'));
+    // out = parseUnits(getAmountOut(1, +formatUnits(reserves[0]), +formatUnits(reserves[1])).toFixed(18)).sub(1_000_000_000_000);
+    // console.log('OUT offchain', formatUnits(out))
+    // console.log('OUT chain', formatUnits(await p.getAmountOut(parseUnits('1'), mim.address)))
+    // await p.swap(0, out, owner.address, '0x')
+    // await expect(p.swap(0, out, owner.address, '0x')).revertedWith('ConePair: K')
+
   });
 
   it("mint gas", async function () {
@@ -420,7 +482,7 @@ async function checkTwap(pair: ConePair, tokenIn: string, diff: BigNumber) {
   const curPrice = await pair.getAmountOut(amount, tokenIn);
   console.log('twapPrice', twapPrice.toString());
   console.log('curPrice', curPrice.toString());
-  if(twapPrice.gt(curPrice)) {
+  if (twapPrice.gt(curPrice)) {
     TestHelper.closer(twapPrice.sub(curPrice), diff, diff.div(100));
   } else {
     TestHelper.closer(curPrice.sub(twapPrice), diff, diff.div(100));
@@ -500,4 +562,63 @@ async function prices(
     expect(+formatUnits(slippage)).is.below(51);
     // console.log(formatUnits(amountIn), formatUnits(out), formatUnits(p), formatUnits(slippage));
   }
+}
+
+
+function getStablePrice(reserveIn: number, reserveOut: number,): number {
+  return getAmountOut(1 / 18, reserveIn, reserveOut) * 18;
+}
+
+function getAmountOut(amountIn: number, reserveIn: number, reserveOut: number): number {
+  const xy = _k(reserveIn, reserveOut);
+  return reserveOut - _getY(amountIn + reserveIn, xy, reserveOut);
+}
+
+function _k(
+  _x: number,
+  _y: number,
+): number {
+  const _a = _x * _y;
+  const _b = _x * _x + _y * _y;
+  // x3y+y3x >= k
+  return _a * _b;
+}
+
+function _getY(x0: number, xy: number, y: number): number {
+  for (let i = 0; i < 255; i++) {
+    const yPrev = y;
+    const k = _f(x0, y);
+    if (k < xy) {
+      const dy = (xy - k) / _d(x0, y);
+      y = y + dy;
+    } else {
+      const dy = (k - xy) / _d(x0, y);
+      y = y - dy;
+    }
+    if (_closeTo(y, yPrev, 1)) {
+      break;
+    }
+  }
+  return y;
+}
+
+function _f(x0: number, y: number): number {
+  return x0 * Math.pow(y, 3) + y * Math.pow(x0, 3);
+}
+
+function _d(x0: number, y: number): number {
+  return 3 * x0 * y * y + Math.pow(x0, 3);
+}
+
+function _closeTo(a: number, b: number, target: number): boolean {
+  if (a > b) {
+    if (a - b < target) {
+      return true;
+    }
+  } else {
+    if (b - a < target) {
+      return true;
+    }
+  }
+  return false;
 }
