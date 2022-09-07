@@ -634,4 +634,90 @@ contract ConeRouter01 {
     (bool success,) = to.call{value : value}(new bytes(0));
     require(success, 'ConeRouter: ETH_TRANSFER_FAILED');
   }
+
+  // ============== ParaSwap INTEGRATION ===================
+
+  address constant NETWORK_TOKEN_ID = address(
+    0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE
+  );
+  // Pool bits are 255-161: fee, 160: direction flag, 159-0: address
+  uint256 constant REVERSE_DIRECTION_FLAG =
+  0x0000000000000000000000010000000000000000000000000000000000000000;
+
+  function swap(
+    address tokenIn,
+    uint256 amountIn,
+    uint256 amountOutMin,
+    address weth,
+    uint256[] calldata pools
+  )
+  external
+  payable
+  returns (uint256 tokensBought)
+  {
+    return _swap(
+      tokenIn,
+      amountIn,
+      amountOutMin,
+      weth,
+      pools
+    );
+  }
+
+  function _swap(
+    address tokenIn,
+    uint256 amountIn,
+    uint256 amountOutMin,
+    address weth,
+    uint256[] memory pools
+  )
+  private
+  returns (uint256 tokensBought)
+  {
+    uint256 pairs = pools.length;
+
+    require(pairs != 0, "ConeRouter: At least one pool required");
+
+    bool tokensBoughtEth;
+
+    if (tokenIn == NETWORK_TOKEN_ID) {
+      require(amountIn == msg.value, "ConeRouter: Incorrect amount of Network Token sent");
+      IWMATIC(weth).deposit{value: msg.value}();
+      require(IWMATIC(weth).transfer(address(uint160(pools[0])), msg.value));
+    } else {
+      IERC20(tokenIn).safeTransferFrom(
+        msg.sender, address(uint160(pools[0])), amountIn
+      );
+      tokensBoughtEth = weth != address(0);
+    }
+
+    tokensBought = amountIn;
+
+    for (uint256 i = 0; i < pairs; ++i) {
+      uint256 p = pools[i];
+      address pool = address(uint160(p));
+      bool direction = p & REVERSE_DIRECTION_FLAG == 0;
+
+      address tokenA = direction ? IPair(pool).token0() : IPair(pool).token1();
+      tokensBought = IPair(pool).getAmountOut(tokensBought, tokenA);
+
+      (uint256 amount0Out, uint256 amount1Out) = direction
+      ? (uint256(0), tokensBought) : (tokensBought, uint256(0));
+      IPair(pool).swap(
+        amount0Out,
+        amount1Out,
+        i + 1 == pairs
+        ? (tokensBoughtEth ? address(this) : msg.sender)
+        : address(uint160(pools[i + 1])),
+        ""
+      );
+    }
+
+    if (tokensBoughtEth) {
+      IWMATIC(weth).withdraw(tokensBought);
+      _safeTransferMATIC(msg.sender, tokensBought);
+    }
+
+    require(tokensBought >= amountOutMin, "UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT");
+  }
 }

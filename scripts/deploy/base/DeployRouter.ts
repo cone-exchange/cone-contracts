@@ -7,7 +7,7 @@ import {BscAddresses} from '../../addresses/BscAddresses';
 async function main() {
   const signer = (await ethers.getSigners())[0];
 
-  const FACTORY = '';
+  const FACTORY = ''.toLowerCase();
 
   const router = await Deploy.deployConeRouter01(signer, FACTORY, BscAddresses.WBNB_TOKEN);
 
